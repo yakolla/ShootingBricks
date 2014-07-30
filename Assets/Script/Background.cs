@@ -76,7 +76,9 @@ public class Background : MonoBehaviour {
 			if (m_listBricks[i].Count > 0)
 			{
 				Brick topBrick = (Brick)m_listBricks[i][0];
-
+				Vector3 pos = topBrick.m_object.transform.position;
+				pos.y += 1;
+				brick.m_object.transform.position = pos;
 			}
 			m_listBricks[i].Insert(0, brick);
 		}
@@ -92,25 +94,24 @@ public class Background : MonoBehaviour {
 
 	void scrollDownBricks(Vector3 v)
 	{
+		ArrayList deleted = new ArrayList();
 		for(int col = 0; col < MAX_COL; ++col)
 		{
-			ArrayList deleted = new ArrayList();
+
 			for(int row = 0; row < m_listBricks[col].Count; ++row)
 			{
 				Brick brick = (Brick)m_listBricks[col][row];
 				brick.m_object.transform.Translate(v);
-				
 				if (brick.m_object.transform.position.y <= bottomLinePosY)
 				{
 					deleted.Add(col);
 				}
 			}
-			
-			foreach(int r in deleted)
-			{
-				int lastIndex = m_listBricks[col].Count-1;
-				destroyBrick(col, lastIndex);
-			}
+		}
+		foreach(int col in deleted)
+		{
+			int lastIndex = m_listBricks[col].Count-1;
+			destroyBrick(col, lastIndex);
 		}
 	}
 
@@ -122,23 +123,27 @@ public class Background : MonoBehaviour {
 			Brick bullet = (Brick)m_bullets[b];
 			bullet.m_object.transform.Translate(v);			
 
-			int lastIndex = m_listBricks[bullet.m_col].Count-1;
-			if (lastIndex < 0)
+			BrickType upperType = BrickType.Normal;
+			Vector3 upperPos = new Vector3(bullet.m_col, 1, 0);
+			int bottomIndex = 0;
+			if (0 < m_listBricks[bullet.m_col].Count)
 			{
-				continue;
+				bottomIndex = m_listBricks[bullet.m_col].Count-1;
+				Brick brick = (Brick)m_listBricks[bullet.m_col][bottomIndex];
+				upperPos = brick.m_object.transform.position;
+				upperType = brick.m_type;
 			}
 
 			// 총알이 블록을 만났을 때
-			Brick brick = (Brick)m_listBricks[bullet.m_col][lastIndex];
-			if (brick.m_object.transform.position.y-1 <= bullet.m_object.transform.position.y)
+			if (upperPos.y-1 <= bullet.m_object.transform.position.y)
 			{
-				Vector3 pos = brick.m_object.transform.position;
+				Vector3 pos = upperPos;
 				pos.y--;
 				bullet.m_object.transform.position = pos;
 
-				if (brick.m_type == BrickType.Obstacle)
+				if (upperType == BrickType.Obstacle)
 				{
-					destroyBrick(bullet.m_col, lastIndex);
+					destroyBrick(bullet.m_col, bottomIndex);
 					DestroyObject(bullet.m_object);
 				}
 				else
@@ -147,24 +152,36 @@ public class Background : MonoBehaviour {
 					m_listBricks[bullet.m_col].Add(bullet);
 				}
 
-
 				m_bullets.RemoveAt(b);
 			}	
 		}
 	}
 
-	void scrollUpUnCombinedBricks(Vector3 v)
+	void scrollUpUncombinedBricks(Vector3 v)
 	{
 		for(int col = 0; col < MAX_COL; ++col)
 		{
-			for(int row = 1; row < m_listBricks[col].Count; ++row)
+			for(int row = 0; row < m_listBricks[col].Count; ++row)
 			{
-				Brick brickUpper = (Brick)m_listBricks[col][row-1];
+				Vector3 upperPos = new Vector3(col, 1, 0);
+				if (row > 0)
+				{
+					Brick brickUpper = (Brick)m_listBricks[col][row-1];
+					upperPos = brickUpper.m_object.transform.position;
+				}
+
 				Brick brick = (Brick)m_listBricks[col][row];
 				
-				if (brickUpper.m_object.transform.position.y-1 > brick.m_object.transform.position.y)
+				if (upperPos.y-1 > brick.m_object.transform.position.y)
 				{
 					brick.m_object.transform.Translate(v);
+
+					if (upperPos.y-1 < brick.m_object.transform.position.y)
+					{
+						Vector3 pos = upperPos;
+						pos.y-=1;
+						brick.m_object.transform.position = pos;
+					}
 				}
 			}
 		}
@@ -226,7 +243,7 @@ public class Background : MonoBehaviour {
 
 		scrollDownBricks(scrollDownPos);
 		scrollUpBullets(scrollUpPos);
-		scrollUpUnCombinedBricks(scrollUpPos);
+		scrollUpUncombinedBricks(scrollUpPos);
 		delteCompletedLine();
 
 		Vector2 touchPos;
