@@ -6,8 +6,6 @@ TextureImporter:
     21300002: Bricks_0
     21300004: Bricks_1
     21300006: Bricks_2
-    21300008: Bricks_3
-    21300010: Bricks_4
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -73,16 +71,6 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 100
-        y: 0
-        width: 50
-        height: 50
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Bricks_3
-      rect:
-        serializedVersion: 2
-        x: 150
         y: 0
         width: 50
         height: 50
