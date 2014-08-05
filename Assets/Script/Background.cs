@@ -8,6 +8,12 @@ enum BrickType
 	Bullet,
 };
 
+enum LinebarType
+{
+	Normal,
+	Touched,
+};
+
 class Brick
 {
 	public GameObject 	m_object;
@@ -37,13 +43,14 @@ public class Background : MonoBehaviour {
 	float scrollUpSpeed = 8f;
 	float shootLastTime = 0;
 
-
-	int m_score = 0;
+	Score	m_score = null;
 	int m_hp = 10;
 	// Use this for initialization
 	void Start () {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, false);
+
+		m_score = this.GetComponent<Score>();
 
 		for(int i  = 0; i < MAX_COL; ++i)
 		{
@@ -66,7 +73,7 @@ public class Background : MonoBehaviour {
 			
 			GameObject obj = Instantiate (pref, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 			
-			obj.GetComponent<SpriteRenderer>().sprite = m_sprLineBars[0];
+			obj.GetComponent<SpriteRenderer>().sprite = m_sprLineBars[(int)LinebarType.Normal];
 			m_lineBars[col] = obj;
 		}
 	}
@@ -335,7 +342,8 @@ public class Background : MonoBehaviour {
 			m_throwAwayBricks.Add(brick);
 			destroyBrick(col, compLine, false);
 		}
-		m_score += MAX_COL;
+
+		m_score.setNumber(m_score.getNumber() + MAX_COL);
 		m_hp++;
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
@@ -358,7 +366,6 @@ public class Background : MonoBehaviour {
 		
 	void OnGUI()
 	{
-		GUI.TextArea(new Rect(0, 0, 100, 20), "sc: " + m_score);
 		GUI.TextArea(new Rect(0, 20, 100, 20), "hp: " + m_hp);
 	}
 
@@ -426,6 +433,7 @@ public class Background : MonoBehaviour {
 
 				if (shootable == true)
 				{
+					m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
 					shootBullet(col);
 					shootLastTime = Time.time;
 				}
