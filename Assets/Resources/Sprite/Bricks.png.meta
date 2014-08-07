@@ -43,7 +43,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 50
+  spritePixelsToUnits: 126
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
@@ -54,38 +54,48 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 50
-        height: 50
+        width: 126
+        height: 126
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Bricks_1
       rect:
         serializedVersion: 2
-        x: 50
+        x: 126
         y: 0
-        width: 50
-        height: 50
+        width: 126
+        height: 126
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Bricks_2
       rect:
         serializedVersion: 2
-        x: 100
+        x: 252
         y: 0
-        width: 50
-        height: 50
+        width: 126
+        height: 126
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Bricks_3
       rect:
         serializedVersion: 2
-        x: 150
+        x: 378
         y: 0
-        width: 50
-        height: 50
+        width: 126
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: Bricks_4
+      rect:
+        serializedVersion: 2
+        x: 504
+        y: 0
+        width: 126
+        height: 126
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

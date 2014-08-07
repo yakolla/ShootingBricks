@@ -1,10 +1,8 @@
 fileFormatVersion: 2
-guid: a3bf6b662e8fc834a89ff789f3ee66f9
+guid: 372c8e54f1af86745b3a13ab6686ce2b
 TextureImporter:
   fileIDToRecycleName:
-    21300000: lineBar
-    21300002: lineBar_0
-    21300004: lineBar_1
+    21300000: back ground
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -27,34 +25,24 @@ TextureImporter:
   textureFormat: -1
   maxTextureSize: 1024
   textureSettings:
-    filterMode: 0
-    aniso: 1
+    filterMode: -1
+    aniso: -1
     mipBias: -1
-    wrapMode: 1
+    wrapMode: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 126
+  spritePixelsToUnits: 100
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
   spriteSheet:
-    sprites:
-    - name: lineBar_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 132
-        height: 1280
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+    sprites: []
   spritePackingTag: 
   userData: 

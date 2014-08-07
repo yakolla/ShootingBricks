@@ -14,6 +14,12 @@ enum LinebarType
 	Touched,
 };
 
+enum BombBrickType
+{
+	A_TYPE,
+	B_TYPE,
+};
+
 class Brick
 {
 	public GameObject 	m_object;
@@ -25,10 +31,10 @@ class Brick
 public class Background : MonoBehaviour {
 
 	const int MAX_COL = 5;
-	const float SHOOT_COOL_TIME = 0.1f;
+	public float ShootCoolTime = 0.1f;
 	const float leftLinePos = 0;
 	const float bottomLinePosY = -6f;
-
+	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 
 	Sprite[] m_sprBricks = null;
 	Sprite[] m_sprLineBars = null;
@@ -39,8 +45,8 @@ public class Background : MonoBehaviour {
 	ArrayList m_bullets = new ArrayList();
 	ArrayList m_throwAwayBricks = new ArrayList();
 	float topBricksLinePosY = 0f;
-	float scrollDownSpeed = -0.5f;
-	float scrollUpSpeed = 8f;
+	public float scrollDownSpeed = -0.5f;
+	public float scrollUpSpeed = 8f;
 	float shootLastTime = 0;
 
 	Score	m_score = null;
@@ -326,19 +332,37 @@ public class Background : MonoBehaviour {
 		}
 	}
 	
-	void delteCompletedLine()
+	void delteCompletedLine(BombBrickType type)
 	{
 		int compLine = getCompletedLine();
 		if (compLine == -1)
 			return;
 
+		int lastShootCol = 2;Random.Range(0, MAX_COL);
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			Brick brick = (Brick)m_listBricks[col][compLine];
 			brick.m_object.AddComponent<Rigidbody2D>();
-			int x = col-MAX_COL/2;
-			brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f, 1.5f));
-			brick.m_object.rigidbody2D.AddTorque(100f);
+			switch(type)
+			{
+			case BombBrickType.A_TYPE:
+			{
+				
+				int x = col-MAX_COL/2;
+				brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f, 50.0f));
+				brick.m_object.rigidbody2D.AddTorque(30f);
+			}break;
+			case BombBrickType.B_TYPE:
+			{
+				int x = col-MAX_COL/2;
+				int y = col%(MAX_COL/2);
+
+				brick.m_object.rigidbody2D.mass = 10;
+				brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f*Random.Range(1, 5), y*y*500.0f));
+				brick.m_object.rigidbody2D.AddTorque(100f);
+			}break;
+			}
+
 			m_throwAwayBricks.Add(brick);
 			destroyBrick(col, compLine, false);
 		}
@@ -387,7 +411,7 @@ public class Background : MonoBehaviour {
 		scrollDownBricks(scrollDownPos);
 		scrollUpBullets(scrollUpPos);
 		scrollUpUncombinedBricks(scrollUpPos);
-		delteCompletedLine();
+		delteCompletedLine((BombBrickType)DefaultBombBrickType);
 		destoryThrowAwayBricks();
 
 		if (m_hp <= 0)
@@ -415,7 +439,7 @@ public class Background : MonoBehaviour {
 		if(touched)
 		{
 			Debug.Log(touchPos);
-			if (Time.time-shootLastTime > SHOOT_COOL_TIME)
+			if (Time.time-shootLastTime > ShootCoolTime)
 			{
 				bool shootable = true;
 				int col = (int)Mathf.Clamp(touchPos.x-leftLinePos+0.5F, 0, MAX_COL-1);
