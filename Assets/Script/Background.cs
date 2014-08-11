@@ -6,6 +6,7 @@ enum BrickType
 	Obstacle,
 	Normal,
 	Bullet,
+
 };
 
 enum LinebarType
@@ -26,15 +27,28 @@ class Brick
 	public int			m_col;
 	public BrickType	m_type;
 	public int			m_overlapCount;
+	public Brick		Clone()
+	{
+		Brick dupBrick = new Brick();
+		dupBrick.m_col = m_col;
+		dupBrick.m_object = MonoBehaviour.Instantiate (m_object, m_object.transform.position, m_object.transform.localRotation) as GameObject;
+		dupBrick.m_overlapCount = 0;
+		dupBrick.m_type = m_type;
+
+		return dupBrick;
+	}
 }
 
+[RequireComponent(typeof(AudioSource))]
 public class Background : MonoBehaviour {
 
 	const int MAX_COL = 5;
 	public float ShootCoolTime = 0.1f;
 	const float leftLinePos = 0;
-	const float bottomLinePosY = -6f;
+	const float bottomLinePosY = -8f;
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
+	public AudioClip	shootingSound = null;
+	public AudioClip	hitBrickSound = null;
 
 	Sprite[] m_sprBricks = null;
 	Sprite[] m_sprLineBars = null;
@@ -50,7 +64,7 @@ public class Background : MonoBehaviour {
 	float shootLastTime = 0;
 
 	Score	m_score = null;
-	int m_hp = 10;
+	int m_hp = 1;
 	// Use this for initialization
 	void Start () {
 
@@ -89,10 +103,10 @@ public class Background : MonoBehaviour {
 		GameObject pref = Resources.Load<GameObject>("Pref/LineButton");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
-			Vector3 pos = new Vector3 (col+leftLinePos, -6.0f, 0f);		
+			Vector3 pos = new Vector3 (col+leftLinePos, bottomLinePosY+0.5f, 0f);		
 			
 			GameObject obj = Instantiate (pref, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
-			
+
 			obj.GetComponent<SpriteRenderer>().sprite = m_sprBricks[3];
 			m_lineButtons[col] = obj;
 		}
@@ -116,6 +130,14 @@ public class Background : MonoBehaviour {
 		brick.m_col = col;
 		brick.m_type = type;
 		brick.m_overlapCount = overlapCount;
+
+		if (brick.m_type == BrickType.Obstacle)
+		{
+			if (brick.m_overlapCount == 0)
+			{
+				brick.m_object.SetActive(false);
+			}
+		}
 
 		return brick;
 	}
@@ -159,25 +181,23 @@ public class Background : MonoBehaviour {
 			for(int row = 0; row < m_listBricks[col].Count; ++row)
 			{
 				Brick brick = (Brick)m_listBricks[col][row];
-				if (brick.m_type == BrickType.Obstacle)
-				{
-					if (brick.m_overlapCount == 0)
-					{
-						brick.m_object.SetActive(false);
-					}
-				}
+
 				brick.m_object.transform.Translate(v);
 				if (brick.m_object.transform.position.y <= bottomLinePosY)
 				{
 					deleted.Add(col);
+
 				}
 			}
 		}
 		foreach(int col in deleted)
 		{
 			int lastIndex = m_listBricks[col].Count-1;
+
 			destroyBrick(col, lastIndex, true);
+
 			m_hp -= 1;
+
 		}
 	}
 
@@ -190,11 +210,11 @@ public class Background : MonoBehaviour {
 
 			BrickType upperType = BrickType.Normal;
 			Vector3 upperPos = new Vector3(bullet.m_col, 1, 0);
-			int bottomIndex = 0;
+			int lastIndex = 0;
 			if (0 < m_listBricks[bullet.m_col].Count)
 			{
-				bottomIndex = m_listBricks[bullet.m_col].Count-1;
-				Brick brick = (Brick)m_listBricks[bullet.m_col][bottomIndex];
+				lastIndex = m_listBricks[bullet.m_col].Count-1;
+				Brick brick = (Brick)m_listBricks[bullet.m_col][lastIndex];
 				upperPos = brick.m_object.transform.position;
 				upperType = brick.m_type;
 			}
@@ -209,14 +229,13 @@ public class Background : MonoBehaviour {
 				pos.y--;
 				bullet.m_object.transform.position = pos;
 
-
-
 				if (upperType == BrickType.Obstacle)
 				{
-					Brick upperBrick = (Brick)m_listBricks[bullet.m_col][bottomIndex];
+					Brick upperBrick = (Brick)m_listBricks[bullet.m_col][lastIndex];
+
 					if (upperBrick.m_overlapCount == 0)
 					{
-						destroyBrick(bullet.m_col, bottomIndex, true);
+						destroyBrick(bullet.m_col, lastIndex, true);
 						removeBullet = false;
 					}
 					else
@@ -224,6 +243,10 @@ public class Background : MonoBehaviour {
 						upperBrick.m_overlapCount--;
 						if (upperBrick.m_overlapCount == 0)
 						{
+							Brick dupBrick = upperBrick.Clone();
+							bombBrick((BombBrickType)DefaultBombBrickType, bullet.m_col, dupBrick);
+
+
 							upperBrick.m_object.SetActive(false);
 						}
 						DestroyObject(bullet.m_object);
@@ -260,6 +283,7 @@ public class Background : MonoBehaviour {
 					upperType = upperBrick.m_type;
 					upperOverlapCount = upperBrick.m_overlapCount;
 				}
+
 
 				Brick brick = (Brick)m_listBricks[col][row];
 				
@@ -331,6 +355,39 @@ public class Background : MonoBehaviour {
 			}
 		}
 	}
+
+	void bombBrick(BombBrickType type, int lastShootCol, Brick brick)
+	{
+		int col = brick.m_col;
+		brick.m_object.AddComponent<Rigidbody2D>();
+		switch(type)
+		{
+		case BombBrickType.A_TYPE:
+		{
+			
+			int x = col-MAX_COL/2;
+			brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f, 50.0f));
+			brick.m_object.rigidbody2D.AddTorque(30f);
+		}break;
+		case BombBrickType.B_TYPE:
+		{
+			int x = col-MAX_COL/2;
+			int y = (col+lastShootCol)%(MAX_COL);
+			
+			brick.m_object.rigidbody2D.mass = 10;
+			brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f*Random.Range(1, 5), y*y*100.0f));
+			brick.m_object.rigidbody2D.AddTorque(100f);
+		}break;
+		}
+		
+		brick.m_object.renderer.sortingOrder++;
+		Color color = brick.m_object.renderer.material.color;
+		color.a = 0.9f;
+		brick.m_object.renderer.material.color = color;
+		m_throwAwayBricks.Add(brick);
+
+		audio.PlayOneShot(hitBrickSound);
+	}
 	
 	void delteCompletedLine(BombBrickType type)
 	{
@@ -338,37 +395,16 @@ public class Background : MonoBehaviour {
 		if (compLine == -1)
 			return;
 
-		int lastShootCol = 2;Random.Range(0, MAX_COL);
+		int lastShootCol = Random.Range(0, MAX_COL);
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			Brick brick = (Brick)m_listBricks[col][compLine];
-			brick.m_object.AddComponent<Rigidbody2D>();
-			switch(type)
-			{
-			case BombBrickType.A_TYPE:
-			{
-				
-				int x = col-MAX_COL/2;
-				brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f, 50.0f));
-				brick.m_object.rigidbody2D.AddTorque(30f);
-			}break;
-			case BombBrickType.B_TYPE:
-			{
-				int x = col-MAX_COL/2;
-				int y = col%(MAX_COL/2);
-
-				brick.m_object.rigidbody2D.mass = 10;
-				brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f*Random.Range(1, 5), y*y*500.0f));
-				brick.m_object.rigidbody2D.AddTorque(100f);
-			}break;
-			}
-
-			m_throwAwayBricks.Add(brick);
+			bombBrick(type, lastShootCol, brick);
 			destroyBrick(col, compLine, false);
 		}
 
 		m_score.setNumber(m_score.getNumber() + MAX_COL);
-		m_hp++;
+
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
@@ -378,7 +414,7 @@ public class Background : MonoBehaviour {
 		while(m_throwAwayBricks.Count > 0)
 		{
 			Brick brick = (Brick)m_throwAwayBricks[m_throwAwayBricks.Count-1];
-			if (brick.m_object.transform.position.y > bottomLinePosY)
+			if (brick.m_object.transform.position.y > bottomLinePosY-2)
 			{
 				break;
 			}
@@ -457,8 +493,10 @@ public class Background : MonoBehaviour {
 
 				if (shootable == true)
 				{
+
 					m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
 					shootBullet(col);
+					audio.PlayOneShot(shootingSound);
 					shootLastTime = Time.time;
 				}
 			}
