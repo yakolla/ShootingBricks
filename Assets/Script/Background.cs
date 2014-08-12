@@ -62,7 +62,7 @@ public class Background : MonoBehaviour {
 	public float scrollDownSpeed = -0.5f;
 	public float scrollUpSpeed = 8f;
 	float shootLastTime = 0;
-
+	float m_frictionForDownSpeed=0;
 	Score	m_score = null;
 	int m_hp = 1;
 	// Use this for initialization
@@ -78,7 +78,7 @@ public class Background : MonoBehaviour {
 		}
 
 		m_sprBricks = Resources.LoadAll<Sprite>("Sprite/Bricks");
-		m_prefBrick = Resources.Load<GameObject>("Pref/Bricks");
+		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
 		createLineBars();
 		createButtons();
 	}
@@ -123,7 +123,7 @@ public class Background : MonoBehaviour {
 
 		GameObject obj = Instantiate (m_prefBrick, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 		
-		obj.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];
+		obj.GetComponentInChildren<SpriteRenderer>().sprite = m_sprBricks[(int)type];
 
 		Brick brick = new Brick();
 		brick.m_object = obj;
@@ -256,6 +256,17 @@ public class Background : MonoBehaviour {
 				else
 				{
 					m_listBricks[bullet.m_col].Add(bullet);
+
+					for(int r = 0; r < m_listBricks[bullet.m_col].Count; ++r)
+					{
+						Brick brick = (Brick)m_listBricks[bullet.m_col][r];
+						Animator ani = brick.m_object.GetComponentInChildren<Animator>();
+						if (ani) 
+							ani.SetTrigger("Bounce");
+						else
+							break;
+					}
+
 				}
 
 				if (removeBullet == true)
@@ -379,11 +390,12 @@ public class Background : MonoBehaviour {
 			brick.m_object.rigidbody2D.AddTorque(100f);
 		}break;
 		}
-		
-		brick.m_object.renderer.sortingOrder++;
-		Color color = brick.m_object.renderer.material.color;
+
+		Renderer rederer = brick.m_object.GetComponentInChildren<Renderer>();
+		rederer.sortingOrder++;
+		Color color = rederer.material.color;
 		color.a = 0.9f;
-		brick.m_object.renderer.material.color = color;
+		rederer.material.color = color;
 		m_throwAwayBricks.Add(brick);
 
 		audio.PlayOneShot(hitBrickSound);
@@ -404,7 +416,7 @@ public class Background : MonoBehaviour {
 		}
 
 		m_score.setNumber(m_score.getNumber() + MAX_COL);
-
+		m_frictionForDownSpeed+=0.1f;
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
@@ -433,7 +445,7 @@ public class Background : MonoBehaviour {
 
 	void Update () {
 
-		Vector3 scrollDownPos = Vector3.up * scrollDownSpeed * Time.deltaTime;
+		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, scrollDownSpeed+m_frictionForDownSpeed) * Time.deltaTime;
 		Vector3 scrollUpPos = Vector3.up * scrollUpSpeed * Time.deltaTime;
 
 		topBricksLinePosY += scrollDownPos.y;
@@ -449,6 +461,11 @@ public class Background : MonoBehaviour {
 		scrollUpUncombinedBricks(scrollUpPos);
 		delteCompletedLine((BombBrickType)DefaultBombBrickType);
 		destoryThrowAwayBricks();
+
+		if (m_frictionForDownSpeed > 0)
+		{
+			m_frictionForDownSpeed -= 0.1f * Time.deltaTime;
+		}
 
 		if (m_hp <= 0)
 		{
