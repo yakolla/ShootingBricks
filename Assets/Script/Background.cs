@@ -46,12 +46,15 @@ public class Background : MonoBehaviour {
 	public float ShootCoolTime = 0.1f;
 	const float leftLinePos = 0;
 	const float bottomLinePosY = -8f;
+	const int	MAX_OBSTACLE_COUNT = 3;
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
 	public AudioClip	hitBrickSound = null;
 
 	Sprite[] m_sprBricks = null;
 	Sprite[] m_sprLineBars = null;
+	Sprite[] m_sprLineButtons = null;
+	Sprite[] m_sprObstacleNumbers = null;
 	GameObject[] m_lineButtons = new GameObject[MAX_COL];
 	GameObject[] m_lineBars = new GameObject[MAX_COL];
 	GameObject m_prefBrick = null;
@@ -79,6 +82,7 @@ public class Background : MonoBehaviour {
 
 		m_sprBricks = Resources.LoadAll<Sprite>("Sprite/Bricks");
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
+		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
 		createButtons();
 	}
@@ -86,7 +90,7 @@ public class Background : MonoBehaviour {
 	void createLineBars()
 	{
 		GameObject pref = Resources.Load<GameObject>("Pref/LineBar");
-		m_sprLineBars =  Resources.LoadAll<Sprite>("Sprite/LineBar");
+		m_sprLineBars =  Resources.LoadAll<Sprite>("Sprite/lineBar");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			Vector3 pos = new Vector3 (col+leftLinePos, -3f, 0f);		
@@ -101,13 +105,14 @@ public class Background : MonoBehaviour {
 	void createButtons()
 	{
 		GameObject pref = Resources.Load<GameObject>("Pref/LineButton");
+		m_sprLineButtons =  Resources.LoadAll<Sprite>("Sprite/lineButton");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			Vector3 pos = new Vector3 (col+leftLinePos, bottomLinePosY+0.5f, 0f);		
 			
 			GameObject obj = Instantiate (pref, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 
-			obj.GetComponent<SpriteRenderer>().sprite = m_sprBricks[3];
+			obj.GetComponent<SpriteRenderer>().sprite = m_sprLineButtons[0];
 			m_lineButtons[col] = obj;
 		}
 	}
@@ -123,7 +128,7 @@ public class Background : MonoBehaviour {
 
 		GameObject obj = Instantiate (m_prefBrick, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 		
-		obj.GetComponentInChildren<SpriteRenderer>().sprite = m_sprBricks[(int)type];
+		obj.transform.FindChild("Brick").gameObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];
 
 		Brick brick = new Brick();
 		brick.m_object = obj;
@@ -137,6 +142,11 @@ public class Background : MonoBehaviour {
 			{
 				brick.m_object.SetActive(false);
 			}
+			else
+			{
+				GameObject obstacle = (GameObject)brick.m_object.transform.FindChild("ObstacleNumber").gameObject;
+				obstacle.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[brick.m_overlapCount-1];
+			}
 		}
 
 		return brick;
@@ -149,7 +159,7 @@ public class Background : MonoBehaviour {
 			BrickType type = (BrickType)Random.Range((int)BrickType.Obstacle, (int)BrickType.Bullet);
 			int overlapCount = 0;
 			if (type == BrickType.Obstacle)
-				overlapCount = Random.Range(0, 2);
+				overlapCount = Random.Range(0, Mathf.Min (MAX_OBSTACLE_COUNT+1, m_score.getNumber()/100));
 
 			Brick brick = createBrick(i, type, overlapCount);
 			if (m_listBricks[i].Count > 0)
@@ -240,14 +250,17 @@ public class Background : MonoBehaviour {
 					}
 					else
 					{
+						Brick dupBrick = upperBrick.Clone();
+						bombBrick((BombBrickType)DefaultBombBrickType, bullet.m_col, dupBrick);
+
 						upperBrick.m_overlapCount--;
 						if (upperBrick.m_overlapCount == 0)
 						{
-							Brick dupBrick = upperBrick.Clone();
-							bombBrick((BombBrickType)DefaultBombBrickType, bullet.m_col, dupBrick);
-
-
 							upperBrick.m_object.SetActive(false);
+						}
+						else
+						{
+							upperBrick.m_object.transform.FindChild("ObstacleNumber").gameObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[upperBrick.m_overlapCount-1];
 						}
 						DestroyObject(bullet.m_object);
 					}
@@ -260,7 +273,7 @@ public class Background : MonoBehaviour {
 					for(int r = 0; r < m_listBricks[bullet.m_col].Count; ++r)
 					{
 						Brick brick = (Brick)m_listBricks[bullet.m_col][r];
-						Animator ani = brick.m_object.GetComponentInChildren<Animator>();
+						Animator ani = brick.m_object.transform.FindChild("Brick").gameObject.GetComponent<Animator>();
 						if (ani) 
 							ani.SetTrigger("Bounce");
 						else
@@ -391,7 +404,7 @@ public class Background : MonoBehaviour {
 		}break;
 		}
 
-		Renderer rederer = brick.m_object.GetComponentInChildren<Renderer>();
+		Renderer rederer = brick.m_object.transform.FindChild("Brick").gameObject.GetComponent<Renderer>();
 		rederer.sortingOrder++;
 		Color color = rederer.material.color;
 		color.a = 0.9f;
@@ -416,7 +429,7 @@ public class Background : MonoBehaviour {
 		}
 
 		m_score.setNumber(m_score.getNumber() + MAX_COL);
-		m_frictionForDownSpeed+=0.1f;
+		m_frictionForDownSpeed=0.5f+(m_score.getNumber()/5000f);
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
@@ -445,7 +458,7 @@ public class Background : MonoBehaviour {
 
 	void Update () {
 
-		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, scrollDownSpeed+m_frictionForDownSpeed) * Time.deltaTime;
+		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, scrollDownSpeed+m_frictionForDownSpeed-(m_score.getNumber()/1000f)) * Time.deltaTime;
 		Vector3 scrollUpPos = Vector3.up * scrollUpSpeed * Time.deltaTime;
 
 		topBricksLinePosY += scrollDownPos.y;
@@ -464,7 +477,7 @@ public class Background : MonoBehaviour {
 
 		if (m_frictionForDownSpeed > 0)
 		{
-			m_frictionForDownSpeed -= 0.1f * Time.deltaTime;
+			m_frictionForDownSpeed -= 0.05f * Time.deltaTime;
 		}
 
 		if (m_hp <= 0)
@@ -512,6 +525,7 @@ public class Background : MonoBehaviour {
 				{
 
 					m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
+					m_lineButtons[col].GetComponent<Animator>().SetTrigger("Touch");
 					shootBullet(col);
 					audio.PlayOneShot(shootingSound);
 					shootLastTime = Time.time;
