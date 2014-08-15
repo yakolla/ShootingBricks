@@ -27,6 +27,8 @@ class Brick
 	public int			m_col;
 	public BrickType	m_type;
 	public int			m_overlapCount;
+	public float		m_creationTime;
+
 	public Brick		Clone()
 	{
 		Brick dupBrick = new Brick();
@@ -34,7 +36,7 @@ class Brick
 		dupBrick.m_object = MonoBehaviour.Instantiate (m_object, m_object.transform.position, m_object.transform.localRotation) as GameObject;
 		dupBrick.m_overlapCount = 0;
 		dupBrick.m_type = m_type;
-
+		dupBrick.m_creationTime = m_creationTime;
 		return dupBrick;
 	}
 }
@@ -64,6 +66,7 @@ public class Background : MonoBehaviour {
 	float topBricksLinePosY = 0f;
 	public float scrollDownSpeed = -0.5f;
 	public float scrollUpSpeed = 8f;
+	public float shootingAccelSpeed = 0.1f;
 	float shootLastTime = 0;
 	float m_frictionForDownSpeed=0;
 	Score	m_score = null;
@@ -135,6 +138,7 @@ public class Background : MonoBehaviour {
 		brick.m_col = col;
 		brick.m_type = type;
 		brick.m_overlapCount = overlapCount;
+		brick.m_creationTime = Time.time;
 
 		if (brick.m_type == BrickType.Obstacle)
 		{
@@ -215,8 +219,12 @@ public class Background : MonoBehaviour {
 	{
 		for(int b = 0; b < m_bullets.Count; ++b)
 		{
+			Vector3 cv = new Vector3(v.x, v.y, v.z);
 			Brick bullet = (Brick)m_bullets[b];
-			bullet.m_object.transform.Translate(v);
+			float elapsedTime = Time.time-bullet.m_creationTime;
+			cv.y += shootingAccelSpeed * elapsedTime;
+			Debug.LogWarning("b time :" + bullet.m_creationTime + " pos :" + v + " elapsedTime :" + elapsedTime);
+			bullet.m_object.transform.Translate(cv);
 
 			BrickType upperType = BrickType.Normal;
 			Vector3 upperPos = new Vector3(bullet.m_col, 1, 0);
@@ -269,15 +277,17 @@ public class Background : MonoBehaviour {
 				else
 				{
 					m_listBricks[bullet.m_col].Add(bullet);
+					bullet.m_creationTime = Time.time;
 
-					for(int r = 0; r < m_listBricks[bullet.m_col].Count; ++r)
+					for(int r = m_listBricks[bullet.m_col].Count-1; r >= 0; --r)
 					{
 						Brick brick = (Brick)m_listBricks[bullet.m_col][r];
-						Animator ani = brick.m_object.transform.FindChild("Brick").gameObject.GetComponent<Animator>();
-						if (ani) 
-							ani.SetTrigger("Bounce");
-						else
+						if (brick.m_type == BrickType.Obstacle && brick.m_overlapCount == 0)
 							break;
+
+						Animator ani = brick.m_object.transform.FindChild("Brick").gameObject.GetComponent<Animator>();
+						ani.SetTrigger("Bounce");
+
 					}
 
 				}
@@ -374,6 +384,7 @@ public class Background : MonoBehaviour {
 			{
 				int row = m_listBricks[col].Count-1;
 				Brick brick = (Brick)m_listBricks[col][row];
+				brick.m_creationTime = Time.time;
 				m_bullets.Add(brick);
 				destroyBrick(col, row, false);
 			}
