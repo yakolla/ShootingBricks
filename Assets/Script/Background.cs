@@ -4,9 +4,8 @@ using System.Collections;
 enum BrickType
 {
 	Obstacle,
-	Normal,
 	Bullet,
-
+	Normal,
 };
 
 enum LinebarType
@@ -28,7 +27,8 @@ class Brick
 	public BrickType	m_type;
 	public int			m_overlapCount;
 	public float		m_creationTime;
-
+	public GameObject	m_brickObject;
+	public GameObject	m_obstacleObject;
 	public Brick		Clone()
 	{
 		Brick dupBrick = new Brick();
@@ -37,6 +37,8 @@ class Brick
 		dupBrick.m_overlapCount = 0;
 		dupBrick.m_type = m_type;
 		dupBrick.m_creationTime = m_creationTime;
+		dupBrick.m_brickObject = m_brickObject;
+		dupBrick.m_obstacleObject = m_obstacleObject;
 		return dupBrick;
 	}
 }
@@ -130,8 +132,6 @@ public class Background : MonoBehaviour {
 		}
 
 		GameObject obj = Instantiate (m_prefBrick, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
-		
-		obj.transform.FindChild("Brick").gameObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];
 
 		Brick brick = new Brick();
 		brick.m_object = obj;
@@ -139,6 +139,9 @@ public class Background : MonoBehaviour {
 		brick.m_type = type;
 		brick.m_overlapCount = overlapCount;
 		brick.m_creationTime = Time.time;
+		brick.m_brickObject = obj.transform.FindChild("Brick").gameObject;
+
+		brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];
 
 		if (brick.m_type == BrickType.Obstacle)
 		{
@@ -148,8 +151,8 @@ public class Background : MonoBehaviour {
 			}
 			else
 			{
-				GameObject obstacle = (GameObject)brick.m_object.transform.FindChild("ObstacleNumber").gameObject;
-				obstacle.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[brick.m_overlapCount-1];
+				brick.m_obstacleObject = (GameObject)brick.m_brickObject.transform.FindChild("ObstacleNumber").gameObject;
+				brick.m_obstacleObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[brick.m_overlapCount-1];
 			}
 		}
 
@@ -160,7 +163,13 @@ public class Background : MonoBehaviour {
 	{
 		for (int i = 0; i < MAX_COL; ++i) 
 		{
-			BrickType type = (BrickType)Random.Range((int)BrickType.Obstacle, (int)BrickType.Bullet);
+			BrickType type = BrickType.Normal;
+			int rand = Random.Range(0, 1000);
+			if (300+Mathf.Min(m_score.getNumber()/300, 400) < rand)
+			{
+				type = BrickType.Obstacle;
+			}
+
 			int overlapCount = 0;
 			if (type == BrickType.Obstacle)
 				overlapCount = Random.Range(0, Mathf.Min (MAX_OBSTACLE_COUNT+1, m_score.getNumber()/100));
@@ -223,7 +232,6 @@ public class Background : MonoBehaviour {
 			Brick bullet = (Brick)m_bullets[b];
 			float elapsedTime = Time.time-bullet.m_creationTime;
 			cv.y += shootingAccelSpeed * elapsedTime;
-			Debug.LogWarning("b time :" + bullet.m_creationTime + " pos :" + v + " elapsedTime :" + elapsedTime);
 			bullet.m_object.transform.Translate(cv);
 
 			BrickType upperType = BrickType.Normal;
@@ -268,7 +276,7 @@ public class Background : MonoBehaviour {
 						}
 						else
 						{
-							upperBrick.m_object.transform.FindChild("ObstacleNumber").gameObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[upperBrick.m_overlapCount-1];
+							upperBrick.m_obstacleObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[upperBrick.m_overlapCount-1];
 						}
 						DestroyObject(bullet.m_object);
 					}
@@ -285,7 +293,7 @@ public class Background : MonoBehaviour {
 						if (brick.m_type == BrickType.Obstacle && brick.m_overlapCount == 0)
 							break;
 
-						Animator ani = brick.m_object.transform.FindChild("Brick").gameObject.GetComponent<Animator>();
+						Animator ani = brick.m_brickObject.GetComponent<Animator>();
 						ani.SetTrigger("Bounce");
 
 					}
@@ -341,6 +349,8 @@ public class Background : MonoBehaviour {
 	{
 		Brick bullet = createBrick(col, BrickType.Bullet, 0);
 		m_bullets.Add(bullet);
+
+		audio.PlayOneShot(shootingSound);
 	}
 
 	int getCompletedLine()
@@ -415,7 +425,7 @@ public class Background : MonoBehaviour {
 		}break;
 		}
 
-		Renderer rederer = brick.m_object.transform.FindChild("Brick").gameObject.GetComponent<Renderer>();
+		Renderer rederer = brick.m_brickObject.GetComponent<Renderer>();
 		rederer.sortingOrder++;
 		Color color = rederer.material.color;
 		color.a = 0.9f;
@@ -440,7 +450,7 @@ public class Background : MonoBehaviour {
 		}
 
 		m_score.setNumber(m_score.getNumber() + MAX_COL);
-		m_frictionForDownSpeed=0.5f+(m_score.getNumber()/5000f);
+		m_frictionForDownSpeed+=getScrollDownSpeed()/-2f;
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
@@ -459,6 +469,11 @@ public class Background : MonoBehaviour {
 			m_throwAwayBricks.RemoveAt(m_throwAwayBricks.Count-1);
 		}
 	}
+
+	float getScrollDownSpeed()
+	{
+		return scrollDownSpeed+(m_score.getNumber()/1000f);
+	}
 		
 	void OnGUI()
 	{
@@ -469,7 +484,7 @@ public class Background : MonoBehaviour {
 
 	void Update () {
 
-		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, scrollDownSpeed+m_frictionForDownSpeed-(m_score.getNumber()/1000f)) * Time.deltaTime;
+		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, getScrollDownSpeed()+m_frictionForDownSpeed) * Time.deltaTime;
 		Vector3 scrollUpPos = Vector3.up * scrollUpSpeed * Time.deltaTime;
 
 		topBricksLinePosY += scrollDownPos.y;
@@ -488,7 +503,8 @@ public class Background : MonoBehaviour {
 
 		if (m_frictionForDownSpeed > 0)
 		{
-			m_frictionForDownSpeed -= 0.05f * Time.deltaTime;
+			m_frictionForDownSpeed -= m_frictionForDownSpeed * Time.deltaTime;
+			m_frictionForDownSpeed = Mathf.Max (0, m_frictionForDownSpeed);
 		}
 
 		if (m_hp <= 0)
@@ -538,7 +554,7 @@ public class Background : MonoBehaviour {
 					m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
 					m_lineButtons[col].GetComponent<Animator>().SetTrigger("Touch");
 					shootBullet(col);
-					audio.PlayOneShot(shootingSound);
+
 					shootLastTime = Time.time;
 				}
 			}
