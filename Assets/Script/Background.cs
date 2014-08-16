@@ -53,7 +53,7 @@ public class Background : MonoBehaviour {
 	const int	MAX_OBSTACLE_COUNT = 3;
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
-	public AudioClip	hitBrickSound = null;
+	public AudioClip	hittingBrickSound = null;
 
 	Sprite[] m_sprBricks = null;
 	Sprite[] m_sprLineBars = null;
@@ -165,7 +165,11 @@ public class Background : MonoBehaviour {
 		{
 			BrickType type = BrickType.Normal;
 			int rand = Random.Range(0, 1000);
-			if (300+Mathf.Min(m_score.getNumber()/300, 400) < rand)
+			if (400+Mathf.Min(m_score.getNumber()/300, 700) < rand)
+			{
+
+			}
+			else
 			{
 				type = BrickType.Obstacle;
 			}
@@ -432,7 +436,7 @@ public class Background : MonoBehaviour {
 		rederer.material.color = color;
 		m_throwAwayBricks.Add(brick);
 
-		audio.PlayOneShot(hitBrickSound);
+		audio.PlayOneShot(hittingBrickSound);
 	}
 	
 	void delteCompletedLine(BombBrickType type)
