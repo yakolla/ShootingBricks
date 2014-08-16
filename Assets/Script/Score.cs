@@ -6,6 +6,9 @@ public class Score : MonoBehaviour {
 	int m_displayScore = 0;
 	int m_score = 0;
 	public int m_numberCount = 5;
+	public float m_top = 1f;
+	public float m_left = 1f;
+	public float m_width = 1f;
 	Sprite[] m_sprNumbers = new Sprite[10];
 	GameObject[] m_numbers = null;
 	const float COOL_TIME = 0.05f;
@@ -18,7 +21,7 @@ public class Score : MonoBehaviour {
 		m_sprNumbers =  Resources.LoadAll<Sprite>("Sprite/Numbers");
 		for(int col = 0; col < m_numberCount; ++col)
 		{
-			Vector3 pos = new Vector3 (m_numberCount-col, 2f, 0f);		
+			Vector3 pos = new Vector3 (m_left+(m_numberCount-col)*m_width, m_top, 0f);		
 			
 			GameObject obj = Instantiate (pref, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 			

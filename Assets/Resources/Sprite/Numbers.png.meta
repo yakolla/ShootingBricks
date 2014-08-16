@@ -48,7 +48,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 79
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
@@ -58,99 +58,99 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 82
-        width: 60
-        height: 80
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_1
       rect:
         serializedVersion: 2
-        x: 60
-        y: 82
-        width: 60
-        height: 80
+        x: 26
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_2
       rect:
         serializedVersion: 2
-        x: 120
-        y: 82
-        width: 60
-        height: 80
+        x: 52
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_3
       rect:
         serializedVersion: 2
-        x: 180
-        y: 82
-        width: 60
-        height: 80
+        x: 78
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_4
       rect:
         serializedVersion: 2
-        x: 240
-        y: 82
-        width: 60
-        height: 80
+        x: 104
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_5
       rect:
         serializedVersion: 2
-        x: 0
-        y: 2
-        width: 60
-        height: 80
+        x: 130
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_6
       rect:
         serializedVersion: 2
-        x: 60
-        y: 2
-        width: 60
-        height: 80
+        x: 156
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_7
       rect:
         serializedVersion: 2
-        x: 120
-        y: 2
-        width: 60
-        height: 80
+        x: 182
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_8
       rect:
         serializedVersion: 2
-        x: 180
-        y: 2
-        width: 60
-        height: 80
+        x: 208
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Numbers_9
       rect:
         serializedVersion: 2
-        x: 240
-        y: 2
-        width: 60
-        height: 80
+        x: 234
+        y: 0
+        width: 26
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
