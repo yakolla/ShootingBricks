@@ -41,7 +41,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 47
+  spritePixelsToUnits: 79
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
@@ -52,28 +52,28 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 44
-        height: 67
+        width: 79
+        height: 79
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: obstacleBrickNumbers_1
       rect:
         serializedVersion: 2
-        x: 44
+        x: 79
         y: 0
-        width: 44
-        height: 67
+        width: 79
+        height: 79
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: obstacleBrickNumbers_2
       rect:
         serializedVersion: 2
-        x: 88
+        x: 158
         y: 0
-        width: 44
-        height: 67
+        width: 79
+        height: 79
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
