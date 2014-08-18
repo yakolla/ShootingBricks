@@ -40,11 +40,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-<<<<<<< HEAD
-  spritePixelsToUnits: 79
-=======
-  spritePixelsToUnits: 83
->>>>>>> origin/master
+  spritePixelsToUnits: 81
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
@@ -55,10 +51,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 83
+        width: 81
         height: 800
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: lineBar_1
       rect:
@@ -68,7 +64,7 @@ TextureImporter:
         width: 81
         height: 800
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
