@@ -29,7 +29,8 @@ class Brick
 	public float		m_creationTime;
 	public GameObject	m_brickObject;
 	public GameObject	m_obstacleObject;
-	public ParticleSystem	m_collisionEffect;
+	public GameObject	m_crashEffect;
+	public bool			m_enableFeverMode;
 	public Brick		Clone()
 	{
 		Brick dupBrick = new Brick();
@@ -40,7 +41,8 @@ class Brick
 		dupBrick.m_creationTime = m_creationTime;
 		dupBrick.m_brickObject = m_brickObject;
 		dupBrick.m_obstacleObject = m_obstacleObject;
-		dupBrick.m_collisionEffect = m_collisionEffect;
+		dupBrick.m_crashEffect = m_crashEffect;
+		dupBrick.m_enableFeverMode = m_enableFeverMode;
 		return dupBrick;
 	}
 }
@@ -67,6 +69,7 @@ public class Background : MonoBehaviour {
 	GameObject[] m_lineButtons = new GameObject[MAX_COL];
 	GameObject[] m_lineBars = new GameObject[MAX_COL];
 	GameObject m_prefBrick = null;
+	GameObject m_prefCrashEffect = null;
 	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
 	ArrayList m_bullets = new ArrayList();
 	ArrayList m_throwAwayBricks = new ArrayList();
@@ -82,7 +85,7 @@ public class Background : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		Screen.SetResolution(Screen.width, Screen.width/2*3, false);
+		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
 
 		m_score = this.GetComponent<Score>();
 		m_fever = this.GetComponent<Fever>();
@@ -93,6 +96,7 @@ public class Background : MonoBehaviour {
 
 		m_sprBricks = Resources.LoadAll<Sprite>("Sprite/Bricks");
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
+		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
 		createButtons();
@@ -146,10 +150,12 @@ public class Background : MonoBehaviour {
 		brick.m_overlapCount = overlapCount;
 		brick.m_creationTime = Time.time;
 		brick.m_brickObject = obj.transform.FindChild("Brick").gameObject;
-		brick.m_collisionEffect = brick.m_brickObject.transform.FindChild("CollisionEffect").gameObject.GetComponent<ParticleSystem>();
-		brick.m_collisionEffect.Stop();
-
 		brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];
+		if (type == BrickType.Normal)
+		{
+			brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[Random.Range(2,5)];
+		}
+
 
 		if (brick.m_type == BrickType.Obstacle)
 		{
@@ -169,18 +175,31 @@ public class Background : MonoBehaviour {
 
 	void generateBricksToTopLine()
 	{
+		int normalBricks = 0;
+		BrickType[] types = new BrickType[MAX_COL];
+		do
+		{
+			normalBricks = 0;
+			for (int i = 0; i < MAX_COL; ++i) 
+			{
+				BrickType type = BrickType.Normal;
+				int rand = Random.Range(0, 1000);
+				if (400+Mathf.Min(m_score.getNumber()/300, 700) < rand)
+				{
+					++normalBricks;
+				}
+				else
+				{
+					type = BrickType.Obstacle;
+				}
+				
+				types[i] = type;
+			}
+		}while(normalBricks == MAX_COL);
+
 		for (int i = 0; i < MAX_COL; ++i) 
 		{
-			BrickType type = BrickType.Normal;
-			int rand = Random.Range(0, 1000);
-			if (400+Mathf.Min(m_score.getNumber()/300, 700) < rand)
-			{
-
-			}
-			else
-			{
-				type = BrickType.Obstacle;
-			}
+			BrickType type = types[i];
 
 			int overlapCount = 0;
 			if (type == BrickType.Obstacle)
@@ -268,7 +287,7 @@ public class Background : MonoBehaviour {
 				bullet.m_object.transform.position = pos;
 
 				bool bombAble = upperType == BrickType.Obstacle;
-				if (m_fever.isFeverMode())
+				if (bullet.m_enableFeverMode)
 				{
 					bombAble = lastIndex > 0;
 				}
@@ -302,7 +321,15 @@ public class Background : MonoBehaviour {
 				}
 				else
 				{
-					bullet.m_collisionEffect.Play();
+					if (bullet.m_crashEffect == null)
+					{
+						bullet.m_crashEffect = Instantiate (m_prefCrashEffect, bullet.m_brickObject.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
+						bullet.m_crashEffect.transform.parent = bullet.m_brickObject.transform;
+					}
+
+					Animator ani = bullet.m_crashEffect.GetComponent<Animator>();
+					ani.Play("crash");
+
 					m_listBricks[bullet.m_col].Add(bullet);
 					bullet.m_creationTime = Time.time;
 
@@ -329,7 +356,7 @@ public class Background : MonoBehaviour {
 			
 			Animator ani = brick.m_brickObject.GetComponent<Animator>();
 			ani.SetTrigger("Bounce");
-			
+
 		}
 	}
 
@@ -373,6 +400,11 @@ public class Background : MonoBehaviour {
 	{
 		Brick bullet = createBrick(col, BrickType.Bullet, 0);
 		m_bullets.Add(bullet);
+		bullet.m_enableFeverMode = m_fever.isFeverMode();
+		if (bullet.m_enableFeverMode == true)
+		{
+			bullet.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[5];
+		}
 
 		audio.PlayOneShot(shootingSound);
 	}
@@ -524,7 +556,7 @@ public class Background : MonoBehaviour {
 
 		if (m_frictionForDownSpeed > 0)
 		{
-			m_frictionForDownSpeed -= m_frictionForDownSpeed * Time.deltaTime;
+			m_frictionForDownSpeed -= m_frictionForDownSpeed / 10f;
 			m_frictionForDownSpeed = Mathf.Max (0, m_frictionForDownSpeed);
 		}
 
