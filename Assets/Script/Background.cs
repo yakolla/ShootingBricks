@@ -48,8 +48,9 @@ public class Background : MonoBehaviour {
 
 	const int MAX_COL = 5;
 	public float ShootCoolTime = 0.1f;
-	const float leftLinePos = 0;
+	const float leftLinePos = 0f;
 	const float bottomLinePosY = -8f;
+	const float topLinePos = 1.85f;
 	const int	MAX_OBSTACLE_COUNT = 3;
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
@@ -124,7 +125,7 @@ public class Background : MonoBehaviour {
 
 	Brick createBrick(int col, BrickType type, int overlapCount)
 	{
-		Vector3 pos = new Vector3 (col+leftLinePos, 1f, 0f);
+		Vector3 pos = new Vector3 (col+leftLinePos, topLinePos, 0f);
 
 		if (type == BrickType.Bullet)
 		{
@@ -319,7 +320,7 @@ public class Background : MonoBehaviour {
 		{
 			for(int row = 0; row < m_listBricks[col].Count; ++row)
 			{
-				Vector3 upperPos = new Vector3(col+leftLinePos, 1, 0);
+				Vector3 upperPos = new Vector3(col+leftLinePos, topLinePos+1, 0);
 				BrickType upperType = BrickType.Normal;
 				int upperOverlapCount = 0;
 				if (row > 0)
@@ -454,7 +455,7 @@ public class Background : MonoBehaviour {
 		}
 
 		m_score.setNumber(m_score.getNumber() + MAX_COL);
-		m_frictionForDownSpeed+=getScrollDownSpeed()/-2f;
+		m_frictionForDownSpeed=getScrollDownSpeed()/-2f;
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
@@ -493,10 +494,10 @@ public class Background : MonoBehaviour {
 
 		topBricksLinePosY += scrollDownPos.y;
 
-		if (topBricksLinePosY < -1)
+		if (topBricksLinePosY < (topLinePos-1))
 		{
 			generateBricksToTopLine();
-			topBricksLinePosY = 0;
+			topBricksLinePosY = topLinePos;
 		}
 
 		scrollDownBricks(scrollDownPos);
@@ -535,7 +536,6 @@ public class Background : MonoBehaviour {
 		
 		if(touched)
 		{
-			Debug.Log(touchPos);
 			if (Time.time-shootLastTime > ShootCoolTime)
 			{
 				bool shootable = true;
