@@ -29,6 +29,7 @@ class Brick
 	public float		m_creationTime;
 	public GameObject	m_brickObject;
 	public GameObject	m_obstacleObject;
+	public ParticleSystem	m_collisionEffect;
 	public Brick		Clone()
 	{
 		Brick dupBrick = new Brick();
@@ -39,9 +40,12 @@ class Brick
 		dupBrick.m_creationTime = m_creationTime;
 		dupBrick.m_brickObject = m_brickObject;
 		dupBrick.m_obstacleObject = m_obstacleObject;
+		dupBrick.m_collisionEffect = m_collisionEffect;
 		return dupBrick;
 	}
 }
+
+
 
 [RequireComponent(typeof(AudioSource))]
 public class Background : MonoBehaviour {
@@ -50,7 +54,7 @@ public class Background : MonoBehaviour {
 	public float ShootCoolTime = 0.1f;
 	const float leftLinePos = 0f;
 	const float bottomLinePosY = -8f;
-	const float topLinePos = 1.85f;
+	const float topLinePos = 1f;
 	const int	MAX_OBSTACLE_COUNT = 3;
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
@@ -72,6 +76,7 @@ public class Background : MonoBehaviour {
 	public float shootingAccelSpeed = 0.1f;
 	float shootLastTime = 0;
 	float m_frictionForDownSpeed=0;
+	Fever m_fever = null;
 	Score	m_score = null;
 	int m_hp = 1;
 	// Use this for initialization
@@ -80,7 +85,7 @@ public class Background : MonoBehaviour {
 		Screen.SetResolution(Screen.width, Screen.width/2*3, false);
 
 		m_score = this.GetComponent<Score>();
-
+		m_fever = this.GetComponent<Fever>();
 		for(int i  = 0; i < MAX_COL; ++i)
 		{
 			m_listBricks[i] = new ArrayList();
@@ -141,6 +146,8 @@ public class Background : MonoBehaviour {
 		brick.m_overlapCount = overlapCount;
 		brick.m_creationTime = Time.time;
 		brick.m_brickObject = obj.transform.FindChild("Brick").gameObject;
+		brick.m_collisionEffect = brick.m_brickObject.transform.FindChild("CollisionEffect").gameObject.GetComponent<ParticleSystem>();
+		brick.m_collisionEffect.Stop();
 
 		brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];
 
@@ -152,7 +159,7 @@ public class Background : MonoBehaviour {
 			}
 			else
 			{
-				brick.m_obstacleObject = (GameObject)brick.m_brickObject.transform.FindChild("ObstacleNumber").gameObject;
+				brick.m_obstacleObject = brick.m_brickObject.transform.FindChild("ObstacleNumber").gameObject;
 				brick.m_obstacleObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[brick.m_overlapCount-1];
 			}
 		}
@@ -260,7 +267,13 @@ public class Background : MonoBehaviour {
 				pos.y--;
 				bullet.m_object.transform.position = pos;
 
-				if (upperType == BrickType.Obstacle)
+				bool bombAble = upperType == BrickType.Obstacle;
+				if (m_fever.isFeverMode())
+				{
+					bombAble = lastIndex > 0;
+				}
+
+				if (bombAble)
 				{
 					Brick upperBrick = (Brick)m_listBricks[bullet.m_col][lastIndex];
 
@@ -289,19 +302,11 @@ public class Background : MonoBehaviour {
 				}
 				else
 				{
+					bullet.m_collisionEffect.Play();
 					m_listBricks[bullet.m_col].Add(bullet);
 					bullet.m_creationTime = Time.time;
 
-					for(int r = m_listBricks[bullet.m_col].Count-1; r >= 0; --r)
-					{
-						Brick brick = (Brick)m_listBricks[bullet.m_col][r];
-						if (brick.m_type == BrickType.Obstacle && brick.m_overlapCount == 0)
-							break;
-
-						Animator ani = brick.m_brickObject.GetComponent<Animator>();
-						ani.SetTrigger("Bounce");
-
-					}
+					playBounceEffect(bullet.m_col);
 
 				}
 
@@ -311,6 +316,20 @@ public class Background : MonoBehaviour {
 				}
 
 			}	
+		}
+	}
+
+	void playBounceEffect(int col)
+	{
+		for(int r = m_listBricks[col].Count-1; r >= 0; --r)
+		{
+			Brick brick = (Brick)m_listBricks[col][r];
+			if (brick.m_type == BrickType.Obstacle && brick.m_overlapCount == 0)
+				break;
+			
+			Animator ani = brick.m_brickObject.GetComponent<Animator>();
+			ani.SetTrigger("Bounce");
+			
 		}
 	}
 
@@ -456,7 +475,7 @@ public class Background : MonoBehaviour {
 
 		m_score.setNumber(m_score.getNumber() + MAX_COL);
 		m_frictionForDownSpeed=getScrollDownSpeed()/-2f;
-
+		m_fever.chargeUp();
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
 	
@@ -480,10 +499,7 @@ public class Background : MonoBehaviour {
 		return scrollDownSpeed+(m_score.getNumber()/1000f);
 	}
 		
-	void OnGUI()
-	{
-		GUI.TextArea(new Rect(0, 20, 100, 20), "hp: " + m_hp);
-	}
+
 
 	// Update is called once per frame
 
