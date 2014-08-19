@@ -21,7 +21,7 @@ public class Score : MonoBehaviour {
 		m_sprNumbers =  Resources.LoadAll<Sprite>("Sprite/Numbers");
 		for(int col = 0; col < m_numberCount; ++col)
 		{
-			Vector3 pos = new Vector3 (m_left+(m_numberCount-col)*m_width, m_top, 0f);		
+			Vector3 pos = new Vector3 (m_left+(m_numberCount-col)*m_width, m_top, -6f);		
 			
 			GameObject obj = Instantiate (pref, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 			

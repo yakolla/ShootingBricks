@@ -18,6 +18,7 @@ enum BombBrickType
 {
 	A_TYPE,
 	B_TYPE,
+	C_TYPE,
 };
 
 class Brick
@@ -28,6 +29,7 @@ class Brick
 	public int			m_overlapCount;
 	public float		m_creationTime;
 	public GameObject	m_brickObject;
+	public GameObject	m_3dBrickObject;
 	public GameObject	m_obstacleObject;
 	public GameObject	m_crashEffect;
 	public bool			m_enableFeverMode;
@@ -40,6 +42,7 @@ class Brick
 		dupBrick.m_type = m_type;
 		dupBrick.m_creationTime = m_creationTime;
 		dupBrick.m_brickObject = m_brickObject;
+		dupBrick.m_3dBrickObject = m_3dBrickObject;
 		dupBrick.m_obstacleObject = m_obstacleObject;
 		dupBrick.m_crashEffect = m_crashEffect;
 		dupBrick.m_enableFeverMode = m_enableFeverMode;
@@ -66,10 +69,12 @@ public class Background : MonoBehaviour {
 	Sprite[] m_sprLineBars = null;
 	Sprite[] m_sprLineButtons = null;
 	Sprite[] m_sprObstacleNumbers = null;
+	Material[] m_metBricks = null;
 	GameObject[] m_lineButtons = new GameObject[MAX_COL];
 	GameObject[] m_lineBars = new GameObject[MAX_COL];
 	GameObject m_prefBrick = null;
 	GameObject m_prefCrashEffect = null;
+	GameObject m_pref3DBrick = null;
 	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
 	ArrayList m_bullets = new ArrayList();
 	ArrayList m_throwAwayBricks = new ArrayList();
@@ -93,10 +98,18 @@ public class Background : MonoBehaviour {
 		{
 			m_listBricks[i] = new ArrayList();
 		}
+		m_metBricks = new Material[6];
+		m_metBricks[0] = new Material(Resources.Load<Material>("3dbox/" + "obstacle brick"));
+		m_metBricks[1] = new Material(Resources.Load<Material>("3dbox/" + "blue brick"));
+		m_metBricks[2] = new Material(Resources.Load<Material>("3dbox/" + "red brick"));
+		m_metBricks[3] = new Material(Resources.Load<Material>("3dbox/" + "purple brick"));
+		m_metBricks[4] = new Material(Resources.Load<Material>("3dbox/" + "yellow brick"));
+		m_metBricks[5] = new Material(Resources.Load<Material>("3dbox/" + "green brick"));
 
 		m_sprBricks = Resources.LoadAll<Sprite>("Sprite/Bricks");
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
+		m_pref3DBrick = Resources.Load<GameObject>("Pref/3DBrick");
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
 		createButtons();
@@ -123,7 +136,7 @@ public class Background : MonoBehaviour {
 		m_sprLineButtons =  Resources.LoadAll<Sprite>("Sprite/lineButton");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
-			Vector3 pos = new Vector3 (col+leftLinePos, bottomLinePosY+0.5f, 0f);		
+			Vector3 pos = new Vector3 (col+leftLinePos, bottomLinePosY+0.5f, -5f);		
 			
 			GameObject obj = Instantiate (pref, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 
@@ -150,14 +163,18 @@ public class Background : MonoBehaviour {
 		brick.m_overlapCount = overlapCount;
 		brick.m_creationTime = Time.time;
 		brick.m_brickObject = obj.transform.FindChild("Brick").gameObject;
-		brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];
-		if (type == BrickType.Normal)
+		brick.m_3dBrickObject = obj.transform.FindChild("3DBrick").gameObject;
+		brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];		
+		brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[(int)type];
+
+		switch(type)
+		{
+		case BrickType.Normal:
 		{
 			brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[Random.Range(2,5)];
-		}
-
-
-		if (brick.m_type == BrickType.Obstacle)
+			brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[Random.Range(2,5)];
+		}break;
+		case BrickType.Obstacle:
 		{
 			if (brick.m_overlapCount == 0)
 			{
@@ -165,10 +182,20 @@ public class Background : MonoBehaviour {
 			}
 			else
 			{
-				brick.m_obstacleObject = brick.m_brickObject.transform.FindChild("ObstacleNumber").gameObject;
+				brick.m_obstacleObject = brick.m_3dBrickObject.transform.FindChild("ObstacleNumber").gameObject;
 				brick.m_obstacleObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[brick.m_overlapCount-1];
 			}
-		}
+		}break;
+		case BrickType.Bullet:
+		{
+			brick.m_enableFeverMode = m_fever.isFeverMode();
+			if (brick.m_enableFeverMode == true)
+			{
+				brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[5];
+				brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[5];
+			}
+		}break;
+		}		
 
 		return brick;
 	}
@@ -255,6 +282,16 @@ public class Background : MonoBehaviour {
 		}
 	}
 
+	void playCrashEffect (Brick bullet)
+	{
+		if (bullet.m_crashEffect == null) {
+			bullet.m_crashEffect = Instantiate (m_prefCrashEffect, bullet.m_brickObject.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
+			bullet.m_crashEffect.transform.parent = bullet.m_brickObject.transform;
+		}
+		Animator ani = bullet.m_crashEffect.GetComponent<Animator> ();
+		ani.Play ("crash");
+	}
+
 	void scrollUpBullets(Vector3 v)
 	{
 		for(int b = 0; b < m_bullets.Count; ++b)
@@ -315,20 +352,16 @@ public class Background : MonoBehaviour {
 						{
 							upperBrick.m_obstacleObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[upperBrick.m_overlapCount-1];
 						}
+
 						DestroyObject(bullet.m_object);
 					}
 
 				}
 				else
 				{
-					if (bullet.m_crashEffect == null)
-					{
-						bullet.m_crashEffect = Instantiate (m_prefCrashEffect, bullet.m_brickObject.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
-						bullet.m_crashEffect.transform.parent = bullet.m_brickObject.transform;
-					}
+					playCrashEffect(bullet);
 
-					Animator ani = bullet.m_crashEffect.GetComponent<Animator>();
-					ani.Play("crash");
+
 
 					m_listBricks[bullet.m_col].Add(bullet);
 					bullet.m_creationTime = Time.time;
@@ -354,7 +387,7 @@ public class Background : MonoBehaviour {
 			if (brick.m_type == BrickType.Obstacle && brick.m_overlapCount == 0)
 				break;
 			
-			Animator ani = brick.m_brickObject.GetComponent<Animator>();
+			Animator ani = brick.m_3dBrickObject.GetComponent<Animator>();
 			ani.SetTrigger("Bounce");
 
 		}
@@ -400,11 +433,7 @@ public class Background : MonoBehaviour {
 	{
 		Brick bullet = createBrick(col, BrickType.Bullet, 0);
 		m_bullets.Add(bullet);
-		bullet.m_enableFeverMode = m_fever.isFeverMode();
-		if (bullet.m_enableFeverMode == true)
-		{
-			bullet.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[5];
-		}
+
 
 		audio.PlayOneShot(shootingSound);
 	}
@@ -460,7 +489,6 @@ public class Background : MonoBehaviour {
 	void bombBrick(BombBrickType type, int lastShootCol, Brick brick)
 	{
 		int col = brick.m_col;
-		brick.m_object.AddComponent<Rigidbody2D>();
 		switch(type)
 		{
 		case BombBrickType.A_TYPE:
@@ -469,6 +497,12 @@ public class Background : MonoBehaviour {
 			int x = col-MAX_COL/2;
 			brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f, 50.0f));
 			brick.m_object.rigidbody2D.AddTorque(30f);
+
+			Renderer rederer = brick.m_brickObject.GetComponent<Renderer>();
+			rederer.sortingOrder++;
+			Color color = rederer.material.color;
+			color.a = 0.9f;
+			rederer.material.color = color;
 		}break;
 		case BombBrickType.B_TYPE:
 		{
@@ -478,14 +512,25 @@ public class Background : MonoBehaviour {
 			brick.m_object.rigidbody2D.mass = 10;
 			brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f*Random.Range(1, 5), y*y*100.0f));
 			brick.m_object.rigidbody2D.AddTorque(100f);
+
+			Renderer rederer = brick.m_brickObject.GetComponent<Renderer>();
+			rederer.sortingOrder++;
+			Color color = rederer.material.color;
+			color.a = 0.9f;
+			rederer.material.color = color;
+		}break;
+		case BombBrickType.C_TYPE:
+		{
+			int x = col-MAX_COL/2;
+			int y = (col+lastShootCol)%(MAX_COL);
+
+			brick.m_object.rigidbody.AddForce(new Vector3(x*50.0f*Random.Range(1, 5), y*y*100.0f, y*y*-100.0f));
+			brick.m_object.rigidbody.AddTorque(new Vector3(100f*Random.Range(-5, 5), 100f*Random.Range(1, 5), 100f*Random.Range(1, 5)));
+			brick.m_object.rigidbody.useGravity = true;
 		}break;
 		}
 
-		Renderer rederer = brick.m_brickObject.GetComponent<Renderer>();
-		rederer.sortingOrder++;
-		Color color = rederer.material.color;
-		color.a = 0.9f;
-		rederer.material.color = color;
+
 		m_throwAwayBricks.Add(brick);
 
 		audio.PlayOneShot(hittingBrickSound);
@@ -528,7 +573,7 @@ public class Background : MonoBehaviour {
 
 	float getScrollDownSpeed()
 	{
-		return scrollDownSpeed+(m_score.getNumber()/1000f);
+		return scrollDownSpeed-(m_score.getNumber()/1000f);
 	}
 		
 
