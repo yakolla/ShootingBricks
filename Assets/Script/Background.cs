@@ -28,7 +28,6 @@ class Brick
 	public BrickType	m_type;
 	public int			m_overlapCount;
 	public float		m_creationTime;
-	public GameObject	m_brickObject;
 	public GameObject	m_3dBrickObject;
 	public GameObject	m_obstacleObject;
 	public GameObject	m_crashEffect;
@@ -41,7 +40,6 @@ class Brick
 		dupBrick.m_overlapCount = 0;
 		dupBrick.m_type = m_type;
 		dupBrick.m_creationTime = m_creationTime;
-		dupBrick.m_brickObject = m_brickObject;
 		dupBrick.m_3dBrickObject = m_3dBrickObject;
 		dupBrick.m_obstacleObject = m_obstacleObject;
 		dupBrick.m_crashEffect = m_crashEffect;
@@ -162,16 +160,13 @@ public class Background : MonoBehaviour {
 		brick.m_type = type;
 		brick.m_overlapCount = overlapCount;
 		brick.m_creationTime = Time.time;
-		brick.m_brickObject = obj.transform.FindChild("Brick").gameObject;
 		brick.m_3dBrickObject = obj.transform.FindChild("3DBrick").gameObject;
-		brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[(int)type];		
 		brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[(int)type];
 
 		switch(type)
 		{
 		case BrickType.Normal:
 		{
-			brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[Random.Range(2,5)];
 			brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[Random.Range(2,5)];
 		}break;
 		case BrickType.Obstacle:
@@ -191,7 +186,6 @@ public class Background : MonoBehaviour {
 			brick.m_enableFeverMode = m_fever.isFeverMode();
 			if (brick.m_enableFeverMode == true)
 			{
-				brick.m_brickObject.GetComponent<SpriteRenderer>().sprite = m_sprBricks[5];
 				brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[5];
 			}
 		}break;
@@ -285,8 +279,9 @@ public class Background : MonoBehaviour {
 	void playCrashEffect (Brick bullet)
 	{
 		if (bullet.m_crashEffect == null) {
-			bullet.m_crashEffect = Instantiate (m_prefCrashEffect, bullet.m_brickObject.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
-			bullet.m_crashEffect.transform.parent = bullet.m_brickObject.transform;
+			bullet.m_crashEffect = Instantiate (m_prefCrashEffect, bullet.m_3dBrickObject.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
+			bullet.m_crashEffect.transform.parent = bullet.m_3dBrickObject.transform;
+			bullet.m_crashEffect.transform.localPosition = Vector3.zero;
 		}
 		Animator ani = bullet.m_crashEffect.GetComponent<Animator> ();
 		ani.Play ("crash");
@@ -503,11 +498,7 @@ public class Background : MonoBehaviour {
 			brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f, 50.0f));
 			brick.m_object.rigidbody2D.AddTorque(30f);
 
-			Renderer rederer = brick.m_brickObject.GetComponent<Renderer>();
-			rederer.sortingOrder++;
-			Color color = rederer.material.color;
-			color.a = 0.9f;
-			rederer.material.color = color;
+
 		}break;
 		case BombBrickType.B_TYPE:
 		{
@@ -518,11 +509,6 @@ public class Background : MonoBehaviour {
 			brick.m_object.rigidbody2D.AddForce(new Vector2(x*50.0f*Random.Range(1, 5), y*y*100.0f));
 			brick.m_object.rigidbody2D.AddTorque(100f);
 
-			Renderer rederer = brick.m_brickObject.GetComponent<Renderer>();
-			rederer.sortingOrder++;
-			Color color = rederer.material.color;
-			color.a = 0.9f;
-			rederer.material.color = color;
 		}break;
 		case BombBrickType.C_TYPE:
 		{
@@ -578,7 +564,7 @@ public class Background : MonoBehaviour {
 
 	float getScrollDownSpeed()
 	{
-		return scrollDownSpeed-(m_score.getNumber()/1000f);
+		return scrollDownSpeed-(Mathf.Log(1.1f, m_score.getNumber()));
 	}
 		
 
