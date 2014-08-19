@@ -63,7 +63,7 @@ public class Background : MonoBehaviour {
 	public AudioClip	shootingSound = null;
 	public AudioClip	hittingBrickSound = null;
 
-	Sprite[] m_sprBricks = null;
+
 	Sprite[] m_sprLineBars = null;
 	Sprite[] m_sprLineButtons = null;
 	Sprite[] m_sprObstacleNumbers = null;
@@ -72,7 +72,7 @@ public class Background : MonoBehaviour {
 	GameObject[] m_lineBars = new GameObject[MAX_COL];
 	GameObject m_prefBrick = null;
 	GameObject m_prefCrashEffect = null;
-	GameObject m_pref3DBrick = null;
+
 	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
 	ArrayList m_bullets = new ArrayList();
 	ArrayList m_throwAwayBricks = new ArrayList();
@@ -104,10 +104,10 @@ public class Background : MonoBehaviour {
 		m_metBricks[4] = new Material(Resources.Load<Material>("3dbox/" + "yellow brick"));
 		m_metBricks[5] = new Material(Resources.Load<Material>("3dbox/" + "green brick"));
 
-		m_sprBricks = Resources.LoadAll<Sprite>("Sprite/Bricks");
+
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
-		m_pref3DBrick = Resources.Load<GameObject>("Pref/3DBrick");
+
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
 		createButtons();
@@ -400,14 +400,11 @@ public class Background : MonoBehaviour {
 			for(int row = 0; row < m_listBricks[col].Count; ++row)
 			{
 				Vector3 upperPos = new Vector3(col+leftLinePos, topLinePos+1, 0);
-				BrickType upperType = BrickType.Normal;
-				int upperOverlapCount = 0;
 				if (row > 0)
 				{
 					Brick upperBrick = (Brick)m_listBricks[col][row-1];
 					upperPos = upperBrick.m_object.transform.position;
-					upperType = upperBrick.m_type;
-					upperOverlapCount = upperBrick.m_overlapCount;
+
 				}
 
 
