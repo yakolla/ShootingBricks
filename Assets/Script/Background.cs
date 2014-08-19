@@ -335,6 +335,11 @@ public class Background : MonoBehaviour {
 
 					if (upperBrick.m_overlapCount == 0)
 					{
+						if (bullet.m_enableFeverMode)
+						{
+							Brick dupBrick = upperBrick.Clone();
+							bombBrick((BombBrickType)DefaultBombBrickType, bullet.m_col, dupBrick);
+						}
 						destroyBrick(bullet.m_col, lastIndex, true);
 						removeBullet = false;
 					}
