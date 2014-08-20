@@ -31,6 +31,7 @@ class Brick
 	public GameObject	m_3dBrickObject;
 	public GameObject	m_obstacleObject;
 	public GameObject	m_crashEffect;
+	public GameObject	m_shootingEffect;
 	public bool			m_enableFeverMode;
 	public Brick		Clone()
 	{
@@ -44,6 +45,7 @@ class Brick
 		dupBrick.m_obstacleObject = m_obstacleObject;
 		dupBrick.m_crashEffect = m_crashEffect;
 		dupBrick.m_enableFeverMode = m_enableFeverMode;
+		dupBrick.m_shootingEffect = m_shootingEffect;
 		return dupBrick;
 	}
 }
@@ -72,6 +74,7 @@ public class Background : MonoBehaviour {
 	GameObject[] m_lineBars = new GameObject[MAX_COL];
 	GameObject m_prefBrick = null;
 	GameObject m_prefCrashEffect = null;
+	GameObject m_prefShootingEffect = null;
 
 	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
 	ArrayList m_bullets = new ArrayList();
@@ -108,6 +111,7 @@ public class Background : MonoBehaviour {
 
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
+		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
 
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
@@ -120,7 +124,7 @@ public class Background : MonoBehaviour {
 		m_sprLineBars =  Resources.LoadAll<Sprite>("Sprite/lineBar");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
-			Vector3 pos = new Vector3 (col+leftLinePos, -3f, 0f);		
+			Vector3 pos = new Vector3 (col+leftLinePos, -3f, 5f);		
 			
 			GameObject obj = Instantiate (pref, pos, Quaternion.Euler (0, 0, 0)) as GameObject;
 			
@@ -189,6 +193,10 @@ public class Background : MonoBehaviour {
 			{
 				brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[5];
 			}
+
+			brick.m_shootingEffect = Instantiate (m_prefShootingEffect, Vector3.zero, Quaternion.Euler (0, 0, 0)) as GameObject;
+			brick.m_shootingEffect.transform.parent = brick.m_3dBrickObject.transform;
+			brick.m_shootingEffect.transform.localPosition = new Vector3(0f, -1.0f, -1f);
 		}break;
 		}		
 
@@ -318,6 +326,12 @@ public class Background : MonoBehaviour {
 				Vector3 pos = upperPos;
 				pos.y--;
 				bullet.m_object.transform.position = pos;
+
+				if (bullet.m_shootingEffect != null)
+				{
+					ParticleSystem particle = bullet.m_shootingEffect.GetComponent<ParticleSystem>();
+					particle.emissionRate = 0;
+				}
 
 				bool bombAble = upperType == BrickType.Obstacle;
 				if (bullet.m_enableFeverMode)
