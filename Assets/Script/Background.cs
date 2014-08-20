@@ -624,7 +624,7 @@ public class Background : MonoBehaviour {
 		{
 			if (Time.time-shootLastTime > ShootCoolTime)
 			{
-				for(int i = 0; i < Input.touchCount; i++)
+				for(int i = 0; i < touchedCount; i++)
 				{
 					bool shootable = true;
 					int col = (int)Mathf.Clamp(touchPos[i].x-leftLinePos+0.5F, 0, MAX_COL-1);
