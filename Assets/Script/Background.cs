@@ -90,6 +90,7 @@ public class Background : MonoBehaviour {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
 
+
 		m_score = this.GetComponent<Score>();
 		m_fever = this.GetComponent<Fever>();
 		for(int i  = 0; i < MAX_COL; ++i)
@@ -595,7 +596,9 @@ public class Background : MonoBehaviour {
 
 		if (m_hp <= 0)
 		{
+			GoogleAnalytics.instance.LogScreen("Score " + m_score.getNumber()/100*100);
 			Application.LoadLevel("main");
+			return;
 		}
 
 
