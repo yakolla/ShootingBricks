@@ -279,9 +279,9 @@ public class Background : MonoBehaviour {
 	void playCrashEffect (Brick bullet)
 	{
 		if (bullet.m_crashEffect == null) {
-			bullet.m_crashEffect = Instantiate (m_prefCrashEffect, bullet.m_3dBrickObject.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
+			bullet.m_crashEffect = Instantiate (m_prefCrashEffect, Vector3.zero, Quaternion.Euler (0, 0, 0)) as GameObject;
 			bullet.m_crashEffect.transform.parent = bullet.m_3dBrickObject.transform;
-			bullet.m_crashEffect.transform.localPosition = Vector3.zero;
+			bullet.m_crashEffect.transform.localPosition = new Vector3(0f, 0f, -1f);
 		}
 		Animator ani = bullet.m_crashEffect.GetComponent<Animator> ();
 		ani.Play ("crash");
@@ -599,49 +599,58 @@ public class Background : MonoBehaviour {
 		}
 
 
-		Vector2 touchPos;
-		bool touched = false;
+		Vector2[] touchPos = new Vector2[MAX_COL];
+		int touchedCount = 0;
 		switch (Application.platform)
 		{
 		case RuntimePlatform.WindowsEditor:
 		case RuntimePlatform.WindowsPlayer:
-			touched = Input.GetMouseButton(0);
-			touchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			touchedCount = Input.GetMouseButton(0) == true ? 1 : 0;
+			touchPos[0] = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			break;
 		default:
-			touched = Input.touchCount > 0;
-			touchPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
-			break;
+		{
+			touchedCount = Input.touchCount;
+			Touch[] myTouches = Input.touches;
+			for(int i = 0; i < Input.touchCount; i++)
+			{
+				touchPos[i] = Camera.main.ScreenToWorldPoint(myTouches[i].position);
+			}
+		}break;
 		}
 
 		
-		if(touched)
+		if(touchedCount > 0)
 		{
 			if (Time.time-shootLastTime > ShootCoolTime)
 			{
-				bool shootable = true;
-				int col = (int)Mathf.Clamp(touchPos.x-leftLinePos+0.5F, 0, MAX_COL-1);
-				foreach(Brick bullet in m_bullets)
+				for(int i = 0; i < Input.touchCount; i++)
 				{
-					if (bullet.m_col == col)
+					bool shootable = true;
+					int col = (int)Mathf.Clamp(touchPos[i].x-leftLinePos+0.5F, 0, MAX_COL-1);
+					foreach(Brick bullet in m_bullets)
 					{
-						if (bullet.m_object.transform.position.y-1 < bottomLinePosY)
+						if (bullet.m_col == col)
 						{
-							shootable = false;
-							break;
+							if (bullet.m_object.transform.position.y-1 < bottomLinePosY)
+							{
+								shootable = false;
+								break;
+							}
 						}
+					}
+					
+					if (shootable == true)
+					{
+						
+						m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
+						m_lineButtons[col].GetComponent<Animator>().SetTrigger("Touch");
+						shootBullet(col);
+						
+						shootLastTime = Time.time;
 					}
 				}
 
-				if (shootable == true)
-				{
-
-					m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
-					m_lineButtons[col].GetComponent<Animator>().SetTrigger("Touch");
-					shootBullet(col);
-
-					shootLastTime = Time.time;
-				}
 			}
 		}
 	}
