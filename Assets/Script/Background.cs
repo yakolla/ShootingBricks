@@ -64,8 +64,7 @@ public class Background : MonoBehaviour {
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
 	public AudioClip	hittingBrickSound = null;
-
-
+	private CGoogleAnalytics m_ga;
 	Sprite[] m_sprLineBars = null;
 	Sprite[] m_sprLineButtons = null;
 	Sprite[] m_sprObstacleNumbers = null;
@@ -92,6 +91,11 @@ public class Background : MonoBehaviour {
 	void Start () {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
+
+		// session starts
+
+		m_ga = this.GetComponent<CGoogleAnalytics>();
+		m_ga.analytics.TrackSession(true);
 
 
 		m_score = this.GetComponent<Score>();
@@ -610,7 +614,8 @@ public class Background : MonoBehaviour {
 
 		if (m_hp <= 0)
 		{
-			GoogleAnalytics.instance.LogScreen("Score " + m_score.getNumber()/100*100);
+			// track some event
+			m_ga.analytics.TrackAppview("Score " + m_score.getNumber()/100*100);
 			Application.LoadLevel("main");
 			return;
 		}
@@ -627,9 +632,9 @@ public class Background : MonoBehaviour {
 			break;
 		default:
 		{
-			touchedCount = Input.touchCount;
+			touchedCount = Mathf.Min(MAX_COL, Input.touchCount);
 			Touch[] myTouches = Input.touches;
-			for(int i = 0; i < Input.touchCount; i++)
+			for(int i = 0; i < touchedCount; i++)
 			{
 				touchPos[i] = Camera.main.ScreenToWorldPoint(myTouches[i].position);
 			}
