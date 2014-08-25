@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SocialPlatforms;
 
 enum BrickType
 {
@@ -19,6 +20,12 @@ enum BombBrickType
 	A_TYPE,
 	B_TYPE,
 	C_TYPE,
+};
+
+enum GameState
+{
+	RUNNING,
+	PEDING_QUIT,
 };
 
 class Brick
@@ -75,6 +82,7 @@ public class Background : MonoBehaviour {
 	GameObject m_prefCrashEffect = null;
 	GameObject m_prefShootingEffect = null;
 	Animator m_prefBackgroundEffect = null;
+	GameState	m_gameState = GameState.RUNNING;
 
 	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
 	ArrayList m_bullets = new ArrayList();
@@ -93,13 +101,15 @@ public class Background : MonoBehaviour {
 	void Start () {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
-
+		m_gameState = GameState.RUNNING;
 		// session starts
-
+		GooglePlayGames.PlayGamesPlatform.Activate();
 		m_ga = this.GetComponent<CGoogleAnalytics>();
 		m_ga.analytics.TrackSession(true);
-
-
+		Social.localUser.Authenticate((bool success) => {
+			// handle success or failure
+		});
+		
 		m_score = this.GetComponent<Score>();
 		m_fever = this.GetComponent<Fever>();
 
@@ -640,6 +650,9 @@ public class Background : MonoBehaviour {
 
 	void Update () {
 
+		if (m_gameState != GameState.RUNNING)
+			return;
+
 		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, getScrollDownSpeed()+m_frictionForDownSpeed) * Time.deltaTime;
 		Vector3 scrollUpPos = Vector3.up * scrollUpSpeed * Time.deltaTime;
 
@@ -666,8 +679,14 @@ public class Background : MonoBehaviour {
 		if (m_hp <= 0)
 		{
 			// track some event
+			m_gameState = GameState.PEDING_QUIT;
+
 			m_ga.analytics.TrackAppview("Score " + m_score.getNumber());
-			Application.LoadLevel("main");
+			Social.ReportScore(m_score.getNumber(), "CgkIjZHLmpcVEAIQBg", (bool success) => {
+				Social.ShowLeaderboardUI();
+				Application.LoadLevel("main");
+			});
+
 			return;
 		}
 
