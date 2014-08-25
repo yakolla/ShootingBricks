@@ -1,12 +1,11 @@
 fileFormatVersion: 2
-guid: a3bf6b662e8fc834a89ff789f3ee66f9
+guid: dd8eba518b58afb41a181d7f1d0c5982
 TextureImporter:
   fileIDToRecycleName:
-    21300000: lineBar
-    21300002: lineBar_0
-    21300004: lineBar_1
-    21300006: lineBar_2
-    21300008: lineBar_3
+    21300000: background
+    21300002: background_0
+    21300004: background_1
+    21300006: background_2
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -48,7 +47,7 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: lineBar_0
+    - name: background_0
       rect:
         serializedVersion: 2
         x: 0
@@ -58,10 +57,20 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: lineBar_1
+    - name: background_1
       rect:
         serializedVersion: 2
         x: 81
+        y: 0
+        width: 81
+        height: 800
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: background_2
+      rect:
+        serializedVersion: 2
+        x: 162
         y: 0
         width: 81
         height: 800

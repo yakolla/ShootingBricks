@@ -5,6 +5,7 @@ TextureImporter:
     21300000: lineButton
     21300002: lineButton_0
     21300004: lineButton_1
+    21300006: lineButton_2
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -60,6 +61,16 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 83
+        y: 0
+        width: 83
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: lineButton_2
+      rect:
+        serializedVersion: 2
+        x: 166
         y: 0
         width: 83
         height: 83
