@@ -5,8 +5,6 @@ TextureImporter:
     21300000: lineBar
     21300002: lineBar_0
     21300004: lineBar_1
-    21300006: lineBar_2
-    21300008: lineBar_3
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -53,10 +51,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 81
+        width: 83
         height: 800
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: lineBar_1
       rect:
@@ -66,7 +64,7 @@ TextureImporter:
         width: 81
         height: 800
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

@@ -2,8 +2,13 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Background.cs">
     <Files>
+<<<<<<< HEAD
       <File FileName="Assets\Script\Background.cs" Line="137" Column="4" />
       <File FileName="Assets\Script\Fever.cs" Line="44" Column="19" />
+=======
+      <File FileName="Assets\Script\Background.cs" Line="680" Column="1" />
+      <File FileName="Assets\Script\Fever.cs" Line="1" Column="1" />
+>>>>>>> parent of 4143309... 백판 위험, 피버, 노멀 상태의 추가
       <File FileName="Assets\Script\Score.cs" Line="1" Column="1" />
     </Files>
     <Pads>

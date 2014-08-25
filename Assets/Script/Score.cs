@@ -6,7 +6,7 @@ public class Score : MonoBehaviour {
 	int m_displayScore = 0;
 	int m_score = 0;
 	public int m_numberCount = 5;
-	public float m_top = 1.5f;
+	const float m_top = 1.7f;
 	public float m_left = 1f;
 	public float m_width = 1f;
 	Sprite[] m_sprNumbers = new Sprite[10];
