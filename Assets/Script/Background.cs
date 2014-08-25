@@ -74,6 +74,7 @@ public class Background : MonoBehaviour {
 	GameObject m_prefBrick = null;
 	GameObject m_prefCrashEffect = null;
 	GameObject m_prefShootingEffect = null;
+	Animator m_prefBackgroundEffect = null;
 
 	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
 	ArrayList m_bullets = new ArrayList();
@@ -86,6 +87,7 @@ public class Background : MonoBehaviour {
 	float m_frictionForDownSpeed=0;
 	Fever m_fever = null;
 	Score	m_score = null;
+	int[]		m_feverCountOfShootingBrick = new int[MAX_COL];
 	int m_hp = 1;
 	// Use this for initialization
 	void Start () {
@@ -100,6 +102,10 @@ public class Background : MonoBehaviour {
 
 		m_score = this.GetComponent<Score>();
 		m_fever = this.GetComponent<Fever>();
+
+		m_fever.m_onStartFever += OnStartFever;
+		m_fever.m_onEndFever += OnEndFever;
+
 		for(int i  = 0; i < MAX_COL; ++i)
 		{
 			m_listBricks[i] = new ArrayList();
@@ -112,7 +118,7 @@ public class Background : MonoBehaviour {
 		m_metBricks[4] = new Material(Resources.Load<Material>("3dbox/" + "yellow brick"));
 		m_metBricks[5] = new Material(Resources.Load<Material>("3dbox/" + "green brick"));
 
-
+		m_prefBackgroundEffect = GameObject.Find("/Bg").GetComponent<Animator>();
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
@@ -120,6 +126,22 @@ public class Background : MonoBehaviour {
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
 		createButtons();
+	}
+
+	void OnStartFever()
+	{		
+		m_prefBackgroundEffect.SetTrigger("Fever");
+		for(int col = 0; col < MAX_COL; ++col)
+		{
+			m_feverCountOfShootingBrick[col] += 1;
+			m_lineButtons[col].GetComponent<Animator>().SetTrigger("Fever");
+		}
+
+	}
+
+	void OnEndFever()
+	{		
+		m_prefBackgroundEffect.SetTrigger("Normal");
 	}
 
 	void createLineBars()
@@ -152,7 +174,7 @@ public class Background : MonoBehaviour {
 		}
 	}
 
-	Brick createBrick(int col, BrickType type, int overlapCount)
+	Brick createBrick(int col, BrickType type, int overlapCount, bool fever)
 	{
 		Vector3 pos = new Vector3 (col+leftLinePos, topLinePos, 0f);
 
@@ -192,7 +214,7 @@ public class Background : MonoBehaviour {
 		}break;
 		case BrickType.Bullet:
 		{
-			brick.m_enableFeverMode = m_fever.isFeverMode();
+			brick.m_enableFeverMode = fever;
 			if (brick.m_enableFeverMode == true)
 			{
 				brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[5];
@@ -239,7 +261,7 @@ public class Background : MonoBehaviour {
 			if (type == BrickType.Obstacle)
 				overlapCount = Random.Range(0, Mathf.Min (MAX_OBSTACLE_COUNT+1, m_score.getNumber()/100));
 
-			Brick brick = createBrick(i, type, overlapCount);
+			Brick brick = createBrick(i, type, overlapCount, false);
 			if (m_listBricks[i].Count > 0)
 			{
 				Brick topBrick = (Brick)m_listBricks[i][0];
@@ -262,6 +284,7 @@ public class Background : MonoBehaviour {
 
 	void scrollDownBricks(Vector3 v)
 	{
+		bool danger = false;
 		ArrayList deleted = new ArrayList();
 		for(int col = 0; col < MAX_COL; ++col)
 		{
@@ -274,7 +297,11 @@ public class Background : MonoBehaviour {
 				if (brick.m_object.transform.position.y <= bottomLinePosY)
 				{
 					deleted.Add(col);
+				}
 
+				if (brick.m_object.transform.position.y <= bottomLinePosY+3)
+				{
+					danger = true;
 				}
 			}
 		}
@@ -287,6 +314,23 @@ public class Background : MonoBehaviour {
 			m_hp -= 1;
 
 		}
+
+		if (m_fever.isFeverMode() == false)
+		{
+			if (danger == true)
+			{
+				m_prefBackgroundEffect.SetTrigger("Danger");
+			}
+			else
+			{
+				m_prefBackgroundEffect.SetTrigger("Normal");
+			}
+		}
+		else
+		{
+			m_prefBackgroundEffect.SetTrigger("Fever");
+		}
+
 	}
 
 	void playCrashEffect (Brick bullet)
@@ -372,7 +416,14 @@ public class Background : MonoBehaviour {
 							upperBrick.m_obstacleObject.GetComponent<SpriteRenderer>().sprite = m_sprObstacleNumbers[upperBrick.m_overlapCount-1];
 						}
 
-						DestroyObject(bullet.m_object);
+						if (bullet.m_enableFeverMode)
+						{
+							removeBullet = false;
+						}
+						else
+						{
+							DestroyObject(bullet.m_object);
+						}
 					}
 
 				}
@@ -445,9 +496,9 @@ public class Background : MonoBehaviour {
 
 	}
 
-	void shootBullet(int col)
+	void shootBullet(int col, bool fever)
 	{
-		Brick bullet = createBrick(col, BrickType.Bullet, 0);
+		Brick bullet = createBrick(col, BrickType.Bullet, 0, fever);
 		m_bullets.Add(bullet);
 
 
@@ -615,7 +666,7 @@ public class Background : MonoBehaviour {
 		if (m_hp <= 0)
 		{
 			// track some event
-			m_ga.analytics.TrackAppview("Score " + m_score.getNumber()/100*100);
+			m_ga.analytics.TrackAppview("Score " + m_score.getNumber());
 			Application.LoadLevel("main");
 			return;
 		}
@@ -644,7 +695,7 @@ public class Background : MonoBehaviour {
 		
 		if(touchedCount > 0)
 		{
-			if (Time.time-shootLastTime > ShootCoolTime)
+			//if (Time.time-shootLastTime > ShootCoolTime)
 			{
 				for(int i = 0; i < touchedCount; i++)
 				{
@@ -654,7 +705,7 @@ public class Background : MonoBehaviour {
 					{
 						if (bullet.m_col == col)
 						{
-							if (bullet.m_object.transform.position.y-1 < bottomLinePosY)
+							if (bullet.m_object.transform.position.y-2.5 < bottomLinePosY)
 							{
 								shootable = false;
 								break;
@@ -667,8 +718,9 @@ public class Background : MonoBehaviour {
 						
 						m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
 						m_lineButtons[col].GetComponent<Animator>().SetTrigger("Touch");
-						shootBullet(col);
-						
+
+						shootBullet(col, m_feverCountOfShootingBrick[col]>0);
+						m_feverCountOfShootingBrick[col] = Mathf.Max(0, m_feverCountOfShootingBrick[col]-1);
 						shootLastTime = Time.time;
 					}
 				}

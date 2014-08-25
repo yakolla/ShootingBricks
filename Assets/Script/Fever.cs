@@ -11,10 +11,13 @@ public class Fever : MonoBehaviour {
 	float			m_feverStartTime=0f;
 	bool			m_feverMode=false;
 	float			m_lastChargeUpTime=0f;
+	public delegate void OnStartFever();
+	public delegate void OnEndFever();
+	public OnStartFever m_onStartFever;
+	public OnEndFever m_onEndFever;
 
 	// Use this for initialization
 	void Start () {
-	
 		m_lastChargeUpTime = Time.time;
 	}
 
@@ -47,12 +50,14 @@ public class Fever : MonoBehaviour {
 	{
 		m_feverMode = true;
 		m_feverStartTime = Time.time;
+		m_onStartFever();
 	}
 
 	void endFeverMode()
 	{
 		m_feverMode = false;
 		m_chargeGuage = 0;
+		m_onEndFever();
 	}
 
 	void OnGUI()
