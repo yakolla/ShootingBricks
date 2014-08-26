@@ -67,7 +67,7 @@ public class Background : MonoBehaviour {
 	const float leftLinePos = 0f;
 	const float bottomLinePosY = -8f;
 	const float topLinePos = 1f;
-	const int	MAX_OBSTACLE_COUNT = 3;
+	const int	MAX_OBSTACLE_COUNT = 1;
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
 	public AudioClip	hittingBrickSound = null;
@@ -619,7 +619,7 @@ public class Background : MonoBehaviour {
 		}
 
 		m_score.setNumber(m_score.getNumber() + MAX_COL);
-		m_frictionForDownSpeed=getScrollDownSpeed()/-2f;
+		m_frictionForDownSpeed=getScrollDownSpeed()/-1f;
 		m_fever.chargeUp();
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
@@ -629,7 +629,7 @@ public class Background : MonoBehaviour {
 		while(m_throwAwayBricks.Count > 0)
 		{
 			Brick brick = (Brick)m_throwAwayBricks[m_throwAwayBricks.Count-1];
-			if (brick.m_object.transform.position.y > bottomLinePosY-2)
+			if (brick.m_object.transform.position.y > bottomLinePosY-1)
 			{
 				break;
 			}
@@ -641,7 +641,12 @@ public class Background : MonoBehaviour {
 
 	float getScrollDownSpeed()
 	{
-		return scrollDownSpeed-(Mathf.Log(1.1f, m_score.getNumber()));
+		int score = m_score.getNumber();
+		if (score == 0)
+			return scrollDownSpeed;
+
+		float speedScore = Mathf.Log(score, 0.001f);
+		return scrollDownSpeed+speedScore;
 	}
 		
 
@@ -655,7 +660,7 @@ public class Background : MonoBehaviour {
 
 		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, getScrollDownSpeed()+m_frictionForDownSpeed) * Time.deltaTime;
 		Vector3 scrollUpPos = Vector3.up * scrollUpSpeed * Time.deltaTime;
-
+		Debug.Log(getScrollDownSpeed()+", "+m_frictionForDownSpeed);
 		topBricksLinePosY += scrollDownPos.y;
 
 		if (topBricksLinePosY < (topLinePos-1))
@@ -672,7 +677,7 @@ public class Background : MonoBehaviour {
 
 		if (m_frictionForDownSpeed > 0)
 		{
-			m_frictionForDownSpeed -= m_frictionForDownSpeed / 10f;
+			m_frictionForDownSpeed -= Time.deltaTime;
 			m_frictionForDownSpeed = Mathf.Max (0, m_frictionForDownSpeed);
 		}
 
