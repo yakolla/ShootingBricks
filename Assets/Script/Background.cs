@@ -598,7 +598,7 @@ public class Background : MonoBehaviour {
 		}break;
 		}
 
-
+		m_score.setNumber(m_score.getNumber() + 1);
 		m_throwAwayBricks.Add(brick);
 
 		audio.PlayOneShot(hittingBrickSound);
@@ -618,7 +618,6 @@ public class Background : MonoBehaviour {
 			destroyBrick(col, compLine, false);
 		}
 
-		m_score.setNumber(m_score.getNumber() + MAX_COL);
 		m_frictionForDownSpeed=getScrollDownSpeed()/-1f;
 		m_fever.chargeUp();
 		changeBricksOfAfterCompletedLineToBullets(compLine);

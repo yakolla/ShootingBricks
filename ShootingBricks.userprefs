@@ -1,20 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="d:\Programming\CodeProject\Mobile\GitHub\ShootingBricks\Assets\GooglePlayGames\ISocialPlatform\PlayGamesAchievement.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Background.cs">
     <Files>
-      <File FileName="Assets\Script\Background.cs" Line="634" Column="11" />
-      <File FileName="Assets\Script\Background.cs" Line="644" Column="21" />
+      <File FileName="Assets\Script\Background.cs" Line="1" Column="1" />
       <File FileName="Assets\Script\Fever.cs" Line="1" Column="1" />
-      <File FileName="d:\Programming\CodeProject\Mobile\GitHub\ShootingBricks\Assets\GooglePlayGames\ISocialPlatform\PlayGamesAchievement.cs" Line="18" Column="7" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="D:\Programming\CodeProject\Mobile\GitHub\ShootingBricks\Assets\Script\Background.cs" line="645" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches>
-    <Watch file="Assets\Script\Background.cs" line="644" offsetX="781" offsetY="13503" expression="scrollDownSpeed" liveUpdate="False" />
     <Watch file="Assets\Script\Background.cs" line="656" offsetX="1281" offsetY="13755" expression="m_frictionForDownSpeed" liveUpdate="False" />
   </MonoDevelop.Ide.DebuggingService.PinnedWatches>
 </Properties>
