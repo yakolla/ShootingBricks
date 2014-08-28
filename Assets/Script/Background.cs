@@ -22,11 +22,6 @@ enum BombBrickType
 	C_TYPE,
 };
 
-enum GameState
-{
-	RUNNING,
-	PEDING_QUIT,
-};
 
 class Brick
 {
@@ -71,7 +66,8 @@ public class Background : MonoBehaviour {
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
 	public AudioClip	hittingBrickSound = null;
-	private CGoogleAnalytics m_ga;
+
+	CGoogleAnalytics m_ga;
 	Sprite[] m_sprLineBars = null;
 	Sprite[] m_sprLineButtons = null;
 	Sprite[] m_sprObstacleNumbers = null;
@@ -81,8 +77,9 @@ public class Background : MonoBehaviour {
 	GameObject m_prefBrick = null;
 	GameObject m_prefCrashEffect = null;
 	GameObject m_prefShootingEffect = null;
+	GameObject	m_prefPopupResult = null;
+	Animator	m_prefDangerEffect = null;
 	Animator m_prefBackgroundEffect = null;
-	GameState	m_gameState = GameState.RUNNING;
 
 	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
 	ArrayList m_bullets = new ArrayList();
@@ -101,7 +98,7 @@ public class Background : MonoBehaviour {
 	void Start () {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
-		m_gameState = GameState.RUNNING;
+		GameBlackboard.m_gameState = GameState.RUNNING;
 		// session starts
 		GooglePlayGames.PlayGamesPlatform.Activate();
 		m_ga = this.GetComponent<CGoogleAnalytics>();
@@ -132,6 +129,8 @@ public class Background : MonoBehaviour {
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
+		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
+		m_prefPopupResult = Resources.Load<GameObject>("Pref/PopupResult");
 
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
@@ -329,11 +328,13 @@ public class Background : MonoBehaviour {
 		{
 			if (danger == true)
 			{
-				m_prefBackgroundEffect.SetTrigger("Danger");
+				//m_prefBackgroundEffect.SetTrigger("Danger");
+				m_prefDangerEffect.SetTrigger("DangerOn");
 			}
 			else
 			{
 				m_prefBackgroundEffect.SetTrigger("Normal");
+				m_prefDangerEffect.SetTrigger("DangerOff");
 			}
 		}
 		else
@@ -440,8 +441,6 @@ public class Background : MonoBehaviour {
 				else
 				{
 					playCrashEffect(bullet);
-
-
 
 					m_listBricks[bullet.m_col].Add(bullet);
 					bullet.m_creationTime = Time.time;
@@ -654,12 +653,12 @@ public class Background : MonoBehaviour {
 
 	void Update () {
 
-		if (m_gameState != GameState.RUNNING)
+		if (GameBlackboard.m_gameState != GameState.RUNNING)
 			return;
 
 		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, getScrollDownSpeed()+m_frictionForDownSpeed) * Time.deltaTime;
 		Vector3 scrollUpPos = Vector3.up * scrollUpSpeed * Time.deltaTime;
-		Debug.Log(getScrollDownSpeed()+", "+m_frictionForDownSpeed);
+
 		topBricksLinePosY += scrollDownPos.y;
 
 		if (topBricksLinePosY < (topLinePos-1))
@@ -683,7 +682,7 @@ public class Background : MonoBehaviour {
 		if (m_hp <= 0)
 		{
 			// track some event
-			m_gameState = GameState.PEDING_QUIT;
+			GameBlackboard.m_gameState = GameState.PEDING_QUIT;
 
 			m_ga.analytics.TrackAppview("Score " + m_score.getNumber());
 			Social.ReportScore(m_score.getNumber(), "CgkIjZHLmpcVEAIQBg", (bool success) => {
@@ -694,36 +693,26 @@ public class Background : MonoBehaviour {
 			return;
 		}
 
-
-		Vector2[] touchPos = new Vector2[MAX_COL];
-		int touchedCount = 0;
-		switch (Application.platform)
-		{
-		case RuntimePlatform.WindowsEditor:
-		case RuntimePlatform.WindowsPlayer:
-			touchedCount = Input.GetMouseButton(0) == true ? 1 : 0;
-			touchPos[0] = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			break;
-		default:
-		{
-			touchedCount = Mathf.Min(MAX_COL, Input.touchCount);
-			Touch[] myTouches = Input.touches;
-			for(int i = 0; i < touchedCount; i++)
-			{
-				touchPos[i] = Camera.main.ScreenToWorldPoint(myTouches[i].position);
-			}
-		}break;
-		}
-
+		int touchedCount = TouchMgr.Update();
 		
 		if(touchedCount > 0)
 		{
+
+			if (TouchMgr.isTouched("pause"))
+			{
+				GameBlackboard.m_gameState = GameState.PAUSE;
+				Vector3 pos = m_prefDangerEffect.gameObject.transform.position;
+				pos.z-=1;
+				Instantiate (m_prefPopupResult, pos, Quaternion.Euler (0, 0, 0));
+				return;
+			}
+
 			//if (Time.time-shootLastTime > ShootCoolTime)
 			{
 				for(int i = 0; i < touchedCount; i++)
 				{
 					bool shootable = true;
-					int col = (int)Mathf.Clamp(touchPos[i].x-leftLinePos+0.5F, 0, MAX_COL-1);
+					int col = (int)Mathf.Clamp(TouchMgr.GetTouchedPos(i).x-leftLinePos+0.5F, 0, MAX_COL-1);
 					foreach(Brick bullet in m_bullets)
 					{
 						if (bullet.m_col == col)

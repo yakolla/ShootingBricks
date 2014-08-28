@@ -39,52 +39,19 @@
 	<Reference Include="System.Core" />
 	<Reference Include="System.Xml.Linq" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>D:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>D:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Achievement.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\DummyClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\IPlayGamesClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\IRealTimeMultiplayerClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\ITurnBasedMultiplayerClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\Invitation.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\MatchOutcome.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\Participant.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\Player.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\RealTimeMultiplayerListener.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\Multiplayer\TurnBasedMatch.cs" />
-     <Compile Include="Assets\GooglePlayGames\BasicApi\OnStateLoadedListener.cs" />
-     <Compile Include="Assets\GooglePlayGames\ISocialPlatform\PlayGamesAchievement.cs" />
-     <Compile Include="Assets\GooglePlayGames\ISocialPlatform\PlayGamesLocalUser.cs" />
-     <Compile Include="Assets\GooglePlayGames\ISocialPlatform\PlayGamesPlatform.cs" />
-     <Compile Include="Assets\GooglePlayGames\ISocialPlatform\PlayGamesScore.cs" />
-     <Compile Include="Assets\GooglePlayGames\ISocialPlatform\PlayGamesUserProfile.cs" />
-     <Compile Include="Assets\GooglePlayGames\OurUtils\Logger.cs" />
-     <Compile Include="Assets\GooglePlayGames\OurUtils\Misc.cs" />
-     <Compile Include="Assets\GooglePlayGames\OurUtils\PlayGamesHelperObject.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\AchievementBank.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\AndroidClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\AndroidRtmpClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\AndroidTbmpClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\GameHelperManager.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\JavaConsts.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\JavaUtil.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\NoopProxy.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\Android\OnStateResultProxy.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\PlayGamesClientFactory.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\iOS\IOSClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\iOS\IOSRtmpClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\iOS\MiniJSON.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\iOS\MonoPInvokeCallbackAttribute.cs" />
-     <Compile Include="Assets\GooglePlayGames\Platforms\iOS\iOSTbmpClient.cs" />
-     <Compile Include="Assets\GooglePlayGames\PluginVersion.cs" />
      <Compile Include="Assets\Script\Background.cs" />
      <Compile Include="Assets\Script\Fever.cs" />
+     <Compile Include="Assets\Script\GameBlackboard.cs" />
+     <Compile Include="Assets\Script\PopupResult.cs" />
      <Compile Include="Assets\Script\Score.cs" />
+     <Compile Include="Assets\Script\TouchMgr.cs" />
      <None Include="Assets\Plugins\Android\google-play-services_lib\res\values-lo-rLA\common_strings.xml" />
      <None Include="Assets\Plugins\Android\google-play-services_lib\res\values-tr\common_strings.xml" />
      <None Include="Assets\Plugins\Android\google-play-services_lib\res\values-vi\common_strings.xml" />
@@ -171,7 +138,7 @@
      <None Include="Assets\Plugins\Android\google-play-services_lib\res\values-ar\common_strings.xml" />
      <None Include="Assets\Plugins\Android\MainLibProj\AndroidManifest.xml" />
  <Reference Include="GPGSUtils">
- <HintPath>D:/github/ShootingBricks/ShootingBricks/Assets/Plugins/GPGSUtils.dll</HintPath>
+ <HintPath>D:/Programming/CodeProject/Mobile/GitHub/ShootingBricks/Assets/Plugins/GPGSUtils.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>
