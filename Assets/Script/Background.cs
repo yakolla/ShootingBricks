@@ -703,7 +703,7 @@ public class Background : MonoBehaviour {
 				GameBlackboard.m_gameState = GameState.PAUSE;
 				Vector3 pos = m_prefDangerEffect.gameObject.transform.position;
 				pos.z-=1;
-				Instantiate (m_prefPopupResult, pos, Quaternion.Euler (0, 0, 0));
+				Instantiate (m_prefPopupResult, m_prefPopupResult.transform.position, Quaternion.Euler (0, 0, 0));
 				return;
 			}
 
