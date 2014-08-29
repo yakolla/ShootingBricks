@@ -1,18 +1,15 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\PopupResult.cs">
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Title.cs">
     <Files>
-      <File FileName="Assets\Script\Background.cs" Line="234" Column="50" />
-      <File FileName="Assets\Script\Fever.cs" Line="1" Column="1" />
-      <File FileName="Assets\Script\PopupResult.cs" Line="8" Column="2" />
-      <File FileName="Assets\Script\GameBlackboard.cs" Line="1" Column="1" />
-      <File FileName="Assets\Script\Score.cs" Line="29" Column="38" />
+      <File FileName="Assets\Script\Background.cs" Line="690" Column="5" />
+      <File FileName="Assets\Script\Title.cs" Line="18" Column="30" />
+      <File FileName="Assets\Script\PopupResult.cs" Line="20" Column="5" />
+      <File FileName="Assets\Script\TouchMgr.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches>
-    <Watch file="Assets\Script\Background.cs" line="656" offsetX="1281" offsetY="13755" expression="m_frictionForDownSpeed" liveUpdate="False" />
-  </MonoDevelop.Ide.DebuggingService.PinnedWatches>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

@@ -51,6 +51,7 @@
      <Compile Include="Assets\Script\GameBlackboard.cs" />
      <Compile Include="Assets\Script\PopupResult.cs" />
      <Compile Include="Assets\Script\Score.cs" />
+     <Compile Include="Assets\Script\Title.cs" />
      <Compile Include="Assets\Script\TouchMgr.cs" />
      <None Include="Assets\Plugins\Android\google-play-services_lib\res\values-lo-rLA\common_strings.xml" />
      <None Include="Assets\Plugins\Android\google-play-services_lib\res\values-tr\common_strings.xml" />

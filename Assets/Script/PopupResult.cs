@@ -18,8 +18,8 @@ public class PopupResult : MonoBehaviour {
 			
 			if (TouchMgr.isTouched("restart"))
 			{
-				GameBlackboard.m_gameState = GameState.RUNNING;
 				DestroyObject(gameObject);
+				Application.LoadLevel("main");
 				return;
 			}
 
