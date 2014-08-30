@@ -18,15 +18,29 @@ public class PopupResult : MonoBehaviour {
 			
 			if (TouchMgr.isTouched("restart"))
 			{
-				DestroyObject(gameObject);
 				Application.LoadLevel("main");
+				gameObject.SetActive(false);
 				return;
 			}
 
 			if (TouchMgr.isTouched("resume"))
 			{
-				GameBlackboard.m_gameState = GameState.RUNNING;
-				DestroyObject(gameObject);
+				if (GameBlackboard.m_gameState == GameState.PEDING_QUIT)
+				{					
+					Application.LoadLevel("main");
+				}
+				else
+				{
+					GameBlackboard.m_gameState = GameState.RUNNING;
+				}
+
+				gameObject.SetActive(false);
+				return;
+			}
+
+			if (TouchMgr.isTouched("leaderBoard"))
+			{
+				Social.ShowLeaderboardUI();
 				return;
 			}
 		}

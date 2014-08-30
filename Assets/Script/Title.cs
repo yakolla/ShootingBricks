@@ -3,9 +3,14 @@ using System.Collections;
 
 public class Title : MonoBehaviour {
 
-
+	bool m_login = false;
 	// Use this for initialization
 	void Start () {
+		GooglePlayGames.PlayGamesPlatform.Activate();
+		Social.localUser.Authenticate((bool success) => {
+			// handle success or failure
+			m_login = success;
+		});
 
 	}
 	
@@ -15,8 +20,12 @@ public class Title : MonoBehaviour {
 		
 		if(touchedCount > 0)
 		{
-			DestroyObject(gameObject);
-			Application.LoadLevel("main");
+			if (m_login == true)
+			{
+				DestroyObject(gameObject);
+				Application.LoadLevel("main");
+			}
+
 		}
 	}
 }

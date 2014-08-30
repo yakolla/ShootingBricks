@@ -52,6 +52,28 @@ class Brick
 	}
 }
 
+class PopupResultObject
+{
+	GameObject 	m_obj;
+	Score		m_curScore;
+	Score		m_highScore;
+
+	public PopupResultObject()
+	{
+		m_obj = GameObject.Find("/PopupResult");
+		m_obj.SetActive(false);
+	}
+
+	public void Show()
+	{
+		m_obj.SetActive(true);
+		m_curScore = GameObject.Find("score").GetComponent<Score>();
+		m_highScore = GameObject.Find("highScore").GetComponent<Score>();
+
+		m_curScore.setNumber(GameBlackboard.m_curScore);
+		m_highScore.setNumber(GameBlackboard.m_highScore);
+	}
+}
 
 
 [RequireComponent(typeof(AudioSource))]
@@ -67,46 +89,45 @@ public class Background : MonoBehaviour {
 	public AudioClip	shootingSound = null;
 	public AudioClip	hittingBrickSound = null;
 
-	CGoogleAnalytics m_ga;
-	Sprite[] m_sprLineBars = null;
-	Sprite[] m_sprLineButtons = null;
-	Sprite[] m_sprObstacleNumbers = null;
-	Material[] m_metBricks = null;
-	GameObject[] m_lineButtons = new GameObject[MAX_COL];
-	GameObject[] m_lineBars = new GameObject[MAX_COL];
-	GameObject m_prefBrick = null;
-	GameObject m_prefCrashEffect = null;
-	GameObject m_prefShootingEffect = null;
-	GameObject	m_prefPopupResult = null;
-	Animator	m_prefDangerEffect = null;
-	Animator m_prefBackgroundEffect = null;
+	CGoogleAnalytics 	m_ga;
+	Sprite[] 			m_sprLineBars = null;
+	Sprite[] 			m_sprLineButtons = null;
+	Sprite[] 			m_sprObstacleNumbers = null;
+	Material[] 			m_metBricks = null;
+	GameObject[] 		m_lineButtons = new GameObject[MAX_COL];
+	GameObject[] 		m_lineBars = new GameObject[MAX_COL];
+	GameObject 			m_prefBrick = null;
+	GameObject 			m_prefCrashEffect = null;
+	GameObject 			m_prefShootingEffect = null;
+	Animator			m_prefDangerEffect = null;
+	Animator 			m_prefBackgroundEffect = null;
 
-	ArrayList[] m_listBricks = new ArrayList[MAX_COL];
-	ArrayList m_bullets = new ArrayList();
-	ArrayList m_throwAwayBricks = new ArrayList();
-	float topBricksLinePosY = 0f;
-	public float scrollDownSpeed = -0.5f;
-	public float scrollUpSpeed = 8f;
-	public float shootingAccelSpeed = 0.1f;
-	float shootLastTime = 0;
-	float m_frictionForDownSpeed=0;
-	Fever m_fever = null;
-	Score	m_score = null;
-	int[]		m_feverCountOfShootingBrick = new int[MAX_COL];
-	int m_hp = 1;
+	ArrayList[] 		m_listBricks = new ArrayList[MAX_COL];
+	ArrayList 			m_bullets = new ArrayList();
+	ArrayList 			m_throwAwayBricks = new ArrayList();
+	float 				topBricksLinePosY = 0f;
+	public float 		scrollDownSpeed = -0.5f;
+	public float 		scrollUpSpeed = 8f;
+	public float 		shootingAccelSpeed = 0.1f;
+	float 				shootLastTime = 0;
+	float 				m_frictionForDownSpeed=0;
+	Fever 				m_fever = null;
+	Score				m_score = null;
+	PopupResultObject	m_popupResultObject = null;
+	int[]				m_feverCountOfShootingBrick = new int[MAX_COL];
+	int 				m_hp = 1;
+
 	// Use this for initialization
 	void Start () {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
 		GameBlackboard.m_gameState = GameState.RUNNING;
 		// session starts
-		GooglePlayGames.PlayGamesPlatform.Activate();
+
 		m_ga = this.GetComponent<CGoogleAnalytics>();
 		m_ga.analytics.TrackSession(true);
-		Social.localUser.Authenticate((bool success) => {
-			// handle success or failure
-		});
-		
+
+
 		m_score = this.GetComponent<Score>();
 		m_fever = this.GetComponent<Fever>();
 
@@ -130,8 +151,8 @@ public class Background : MonoBehaviour {
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
 		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
-		m_prefPopupResult = Resources.Load<GameObject>("Pref/PopupResult");
 
+		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
 		createButtons();
@@ -648,7 +669,12 @@ public class Background : MonoBehaviour {
 	}
 		
 
+	void popupResultBoard()
+	{
+		GameBlackboard.m_gameState = GameState.PAUSE;
+		m_popupResultObject.Show();
 
+	}
 	// Update is called once per frame
 
 	void Update () {
@@ -681,15 +707,15 @@ public class Background : MonoBehaviour {
 
 		if (m_hp <= 0)
 		{
-			// track some event
-			GameBlackboard.m_gameState = GameState.PEDING_QUIT;
+			GameBlackboard.updateScore(m_score.getNumber());
+			popupResultBoard();		
 
 			m_ga.analytics.TrackAppview("Score " + m_score.getNumber());
 			Social.ReportScore(m_score.getNumber(), "CgkIjZHLmpcVEAIQBg", (bool success) => {
-				Social.ShowLeaderboardUI();
-				Application.LoadLevel("main");
-			});
 
+			});
+			
+			GameBlackboard.m_gameState = GameState.PEDING_QUIT;	
 			return;
 		}
 
@@ -700,10 +726,7 @@ public class Background : MonoBehaviour {
 
 			if (TouchMgr.isTouched("pause"))
 			{
-				GameBlackboard.m_gameState = GameState.PAUSE;
-				Vector3 pos = m_prefDangerEffect.gameObject.transform.position;
-				pos.z-=1;
-				Instantiate (m_prefPopupResult, m_prefPopupResult.transform.position, Quaternion.Euler (0, 0, 0));
+				popupResultBoard();
 				return;
 			}
 

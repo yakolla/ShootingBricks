@@ -14,6 +14,7 @@ public class Score : MonoBehaviour {
 	GameObject[] m_numbers = null;
 	const float COOL_TIME = 0.05f;
 	float	m_lastUpdateTime = 0.0f;
+	int		m_disPlayScoreUpdateSpeed = 1;
 	// Use this for initialization
 	void Start () {
 	
@@ -38,6 +39,7 @@ public class Score : MonoBehaviour {
 	public void setNumber(int number)
 	{
 		m_score = number;
+		m_disPlayScoreUpdateSpeed = Mathf.Max(1, (m_score-m_displayScore)/3);
 	}
 
 	public int getNumber()
@@ -52,7 +54,8 @@ public class Score : MonoBehaviour {
 		{
 			if (m_displayScore < m_score)
 			{
-				m_displayScore += 1;
+				m_displayScore = Mathf.Min(m_displayScore+m_disPlayScoreUpdateSpeed, m_score);
+
 				int number = m_displayScore;
 				int a = 1;
 				for(int i = 0; i < m_numberCount; ++i)

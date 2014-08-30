@@ -20,6 +20,17 @@ public enum GameState
 public static class GameBlackboard
 {
 	static public GameState	m_gameState = GameState.RUNNING;
+	static public int		m_curScore = 0;
+	static public int		m_highScore = 0;
+	static public void		updateScore(int score)
+	{
+		if (m_highScore < score)
+		{
+			m_highScore = score;
+		}
+
+		m_curScore = score;
+	}
 }
 
 
