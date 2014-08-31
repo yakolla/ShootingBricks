@@ -3,21 +3,26 @@ using System.Collections;
 
 public class PopupResult : MonoBehaviour {
 
+	GameObject m_prefRestartAds = null;
+
 	// Use this for initialization
 	void Start () {
-	
+
+
+
 	}
-	
+
+
 	// Update is called once per frame
 	void Update () {
 	
 		int touchedCount = TouchMgr.Update();
 		
 		if(touchedCount > 0)
-		{
-			
+		{			
 			if (TouchMgr.isTouched("restart"))
 			{
+
 				Application.LoadLevel("main");
 				gameObject.SetActive(false);
 				return;

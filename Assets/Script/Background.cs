@@ -99,6 +99,8 @@ public class Background : MonoBehaviour {
 	GameObject 			m_prefBrick = null;
 	GameObject 			m_prefCrashEffect = null;
 	GameObject 			m_prefShootingEffect = null;
+	GameObject 			m_prefRestartAds = null;
+
 	Animator			m_prefDangerEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
 
@@ -109,7 +111,6 @@ public class Background : MonoBehaviour {
 	public float 		scrollDownSpeed = -0.5f;
 	public float 		scrollUpSpeed = 8f;
 	public float 		shootingAccelSpeed = 0.1f;
-	float 				shootLastTime = 0;
 	float 				m_frictionForDownSpeed=0;
 	Fever 				m_fever = null;
 	Score				m_score = null;
@@ -151,6 +152,7 @@ public class Background : MonoBehaviour {
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
 		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
+		m_prefRestartAds = Resources.Load<GameObject>("Pref/RestartAds");
 
 		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
@@ -707,6 +709,7 @@ public class Background : MonoBehaviour {
 
 		if (m_hp <= 0)
 		{
+			Instantiate (m_prefRestartAds, m_prefRestartAds.transform.position, Quaternion.Euler (0, 0, 0));
 			GameBlackboard.updateScore(m_score.getNumber());
 			popupResultBoard();		
 
@@ -756,7 +759,6 @@ public class Background : MonoBehaviour {
 
 						shootBullet(col, m_feverCountOfShootingBrick[col]>0);
 						m_feverCountOfShootingBrick[col] = Mathf.Max(0, m_feverCountOfShootingBrick[col]-1);
-						shootLastTime = Time.time;
 					}
 				}
 
