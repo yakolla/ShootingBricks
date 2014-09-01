@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class PopupResult : MonoBehaviour {
@@ -12,42 +12,49 @@ public class PopupResult : MonoBehaviour {
 
 	}
 
+	void resume()
+	{
+		if (GameBlackboard.m_gameState == GameState.PEDING_QUIT)
+		{					
+			Application.LoadLevel("main");
+		}
+		else
+		{
+			GameBlackboard.m_gameState = GameState.RUNNING;
+		}
+		
+		gameObject.SetActive(false);
+	}
 
 	// Update is called once per frame
 	void Update () {
 	
 		int touchedCount = TouchMgr.Update();
 		
-		if(touchedCount > 0)
-		{			
-			if (TouchMgr.isTouched("restart"))
-			{
+		if (TouchMgr.isTouchUp("restart"))
+		{
+			
+			Application.LoadLevel("main");
+			gameObject.SetActive(false);
+			return;
+		}
+		
+		if (TouchMgr.isTouchUp("resume"))
+		{
+			resume();
+			return;
+		}
+		
+		if (TouchMgr.isTouchUp("leaderBoard"))
+		{
+			Social.ShowLeaderboardUI();
+			return;
+		}
 
-				Application.LoadLevel("main");
-				gameObject.SetActive(false);
-				return;
-			}
-
-			if (TouchMgr.isTouched("resume"))
-			{
-				if (GameBlackboard.m_gameState == GameState.PEDING_QUIT)
-				{					
-					Application.LoadLevel("main");
-				}
-				else
-				{
-					GameBlackboard.m_gameState = GameState.RUNNING;
-				}
-
-				gameObject.SetActive(false);
-				return;
-			}
-
-			if (TouchMgr.isTouched("leaderBoard"))
-			{
-				Social.ShowLeaderboardUI();
-				return;
-			}
+		if (Input.GetKeyDown(KeyCode.Escape)) 
+		{
+			resume();
+			return;
 		}
 	}
 }

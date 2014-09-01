@@ -10,12 +10,15 @@
 using System;
 using UnityEngine;
 
+
 public static class TouchMgr
 {
 	static int MAX_COL = 5;
 	static Vector2[] touchPos = new Vector2[MAX_COL];
 
-
+	static RaycastHit2D m_hitByTouchUp;
+	static RaycastHit2D m_hitByTouchDown;
+	static RaycastHit2D m_zero;
 	static public Vector2 GetTouchedPos(int i)
 	{
 		return touchPos[i];
@@ -23,8 +26,9 @@ public static class TouchMgr
 
 	static public int Update()
 	{
-		
+
 		int touchedCount = 0;
+
 		switch (Application.platform)
 		{
 		case RuntimePlatform.WindowsEditor:
@@ -43,18 +47,29 @@ public static class TouchMgr
 		}break;
 		}
 
+		RaycastHit2D hit = Physics2D.Raycast(touchPos[0], -Vector2.up);
+
+		if (touchedCount == 0)
+		{
+			m_hitByTouchUp = m_hitByTouchDown;
+			m_hitByTouchDown = m_zero;
+		}
+		else
+		{
+			m_hitByTouchDown = hit;
+		}
+
+
 		return touchedCount;
 	}
 
-	static public GameObject isTouched(string tag)
+	static public GameObject isTouchUp(string tag)
 	{
-		RaycastHit2D hit = Physics2D.Raycast(touchPos[0], -Vector2.up);
-		
-		if(hit.collider != null) 
+		if(m_hitByTouchUp.collider != null) 
 		{
-			if (hit.collider.tag == tag)
+			if (m_hitByTouchUp.collider.tag == tag)
 			{
-				return hit.collider.gameObject;
+				return m_hitByTouchUp.collider.gameObject;
 			}			
 		}
 

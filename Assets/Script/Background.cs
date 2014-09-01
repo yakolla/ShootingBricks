@@ -714,25 +714,24 @@ public class Background : MonoBehaviour {
 			popupResultBoard();		
 
 			m_ga.analytics.TrackAppview("Score " + m_score.getNumber());
-			Social.ReportScore(m_score.getNumber(), "CgkIjZHLmpcVEAIQBg", (bool success) => {
 
+			Social.ReportScore(m_score.getNumber(), "CgkIjZHLmpcVEAIQBg", (bool success) => {
 			});
-			
+
 			GameBlackboard.m_gameState = GameState.PEDING_QUIT;	
 			return;
 		}
 
 		int touchedCount = TouchMgr.Update();
-		
+
+		if (TouchMgr.isTouchUp("pause"))
+		{
+			popupResultBoard();
+			return;
+		}
+
 		if(touchedCount > 0)
 		{
-
-			if (TouchMgr.isTouched("pause"))
-			{
-				popupResultBoard();
-				return;
-			}
-
 			//if (Time.time-shootLastTime > ShootCoolTime)
 			{
 				for(int i = 0; i < touchedCount; i++)

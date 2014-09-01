@@ -7,11 +7,11 @@ public class Title : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		GooglePlayGames.PlayGamesPlatform.Activate();
+
 		Social.localUser.Authenticate((bool success) => {
 			// handle success or failure
-			m_login = success;
+			m_login = true;
 		});
-
 	}
 	
 	// Update is called once per frame
@@ -20,7 +20,7 @@ public class Title : MonoBehaviour {
 		
 		if(touchedCount > 0)
 		{
-			if (m_login == true)
+			//if (m_login == true)
 			{
 				DestroyObject(gameObject);
 				Application.LoadLevel("main");

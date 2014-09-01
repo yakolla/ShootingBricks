@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c141767675976694a9cc0d521d40dac7
+guid: 748588c811410544e83cdfa5ed18619b
 TextureImporter:
   fileIDToRecycleName:
-    21300000: leaderBoard
-    21300002: leaderBoard_0
-    21300004: leaderBoard_1
+    21300000: leaderboards
+    21300002: leaderboards_0
+    21300004: leaderboards_1
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -46,25 +46,25 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: leaderBoard_0
+    - name: leaderboards_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 35
-        width: 227
-        height: 35
+        y: 42
+        width: 414
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: leaderBoard_1
+    - name: leaderboards_1
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 227
-        height: 35
+        width: 414
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
