@@ -100,7 +100,7 @@ public class Background : MonoBehaviour {
 	GameObject 			m_prefCrashEffect = null;
 	GameObject 			m_prefShootingEffect = null;
 	GameObject 			m_prefRestartAds = null;
-
+	GameObject			m_prefFeverBar = null;
 	Animator			m_prefDangerEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
 
@@ -153,7 +153,7 @@ public class Background : MonoBehaviour {
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
 		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
 		m_prefRestartAds = Resources.Load<GameObject>("Pref/RestartAds");
-
+		m_prefFeverBar = GameObject.Find("/FeverBar");
 		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
@@ -701,6 +701,11 @@ public class Background : MonoBehaviour {
 		delteCompletedLine((BombBrickType)DefaultBombBrickType);
 		destoryThrowAwayBricks();
 
+		Vector3 scale = m_prefFeverBar.transform.localScale;
+		scale.y = m_fever.getChargeValue()/100f;
+		Debug.Log(scale);
+		m_prefFeverBar.transform.localScale = scale;
+
 		if (m_frictionForDownSpeed > 0)
 		{
 			m_frictionForDownSpeed -= Time.deltaTime;
@@ -758,6 +763,21 @@ public class Background : MonoBehaviour {
 
 						shootBullet(col, m_feverCountOfShootingBrick[col]>0);
 						m_feverCountOfShootingBrick[col] = Mathf.Max(0, m_feverCountOfShootingBrick[col]-1);
+
+						if (m_fever.isFeverMode())
+						{
+							int remainFeverCount = 0;
+							for (int f = 0; f < MAX_COL; ++f)
+							{
+								remainFeverCount += m_feverCountOfShootingBrick[f];
+							}
+							
+							if (remainFeverCount == 0)
+							{
+								m_fever.endFeverMode();
+							}
+						}
+
 					}
 				}
 

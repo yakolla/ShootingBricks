@@ -35,6 +35,11 @@ public class Fever : MonoBehaviour {
 
 	}
 
+	public float getChargeValue()
+	{
+		return m_chargeGuage;
+	}
+
 	public bool isFeverMode()
 	{
 		return m_feverMode;
@@ -53,7 +58,7 @@ public class Fever : MonoBehaviour {
 		m_onStartFever();
 	}
 
-	void endFeverMode()
+	public void endFeverMode()
 	{
 		m_feverMode = false;
 		m_chargeGuage = 0;
@@ -74,7 +79,7 @@ public class Fever : MonoBehaviour {
 		{
 			if (Time.time-m_feverStartTime >= m_feverDurationTime)
 			{
-				endFeverMode();
+				//endFeverMode();
 			}
 		}
 		else
