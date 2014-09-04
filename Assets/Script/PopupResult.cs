@@ -51,6 +51,12 @@ public class PopupResult : MonoBehaviour {
 			return;
 		}
 
+		if (TouchMgr.isTouchUp("quit"))
+		{
+			Application.Quit();
+			return;
+		}
+
 		if (Input.GetKeyDown(KeyCode.Escape)) 
 		{
 			resume();

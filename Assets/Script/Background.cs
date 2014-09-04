@@ -99,6 +99,7 @@ public class Background : MonoBehaviour {
 	GameObject 			m_prefBrick = null;
 	GameObject 			m_prefCrashEffect = null;
 	GameObject 			m_prefShootingEffect = null;
+	GameObject 			m_prefFeverShootingEffect = null;
 	GameObject 			m_prefRestartAds = null;
 	GameObject			m_prefFeverBar = null;
 	Animator			m_prefDangerEffect = null;
@@ -151,6 +152,7 @@ public class Background : MonoBehaviour {
 		m_prefBrick = Resources.Load<GameObject>("Pref/Brick");
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
+		m_prefFeverShootingEffect = Resources.Load<GameObject>("Pref/fever shot ef");
 		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
 		m_prefRestartAds = Resources.Load<GameObject>("Pref/RestartAds");
 		m_prefFeverBar = GameObject.Find("/FeverBar");
@@ -252,7 +254,15 @@ public class Background : MonoBehaviour {
 				brick.m_3dBrickObject.GetComponent<MeshRenderer> ().material = m_metBricks[5];
 			}
 
-			brick.m_shootingEffect = Instantiate (m_prefShootingEffect, Vector3.zero, Quaternion.Euler (0, 0, 0)) as GameObject;
+			if (fever == true)
+			{
+				brick.m_shootingEffect = Instantiate (m_prefFeverShootingEffect, Vector3.zero, Quaternion.Euler (0, 0, 0)) as GameObject;
+			}
+			else
+			{
+				brick.m_shootingEffect = Instantiate (m_prefShootingEffect, Vector3.zero, Quaternion.Euler (0, 0, 0)) as GameObject;
+			}
+
 			brick.m_shootingEffect.transform.parent = brick.m_3dBrickObject.transform;
 			brick.m_shootingEffect.transform.localPosition = new Vector3(0f, -1.0f, -1f);
 		}break;
@@ -412,7 +422,8 @@ public class Background : MonoBehaviour {
 				if (bullet.m_shootingEffect != null)
 				{
 					ParticleSystem particle = bullet.m_shootingEffect.GetComponent<ParticleSystem>();
-					particle.emissionRate = 0;
+					if (particle != null)
+						particle.emissionRate = 0;
 				}
 
 				bool bombAble = upperType == BrickType.Obstacle;
@@ -730,6 +741,12 @@ public class Background : MonoBehaviour {
 		int touchedCount = TouchMgr.Update();
 
 		if (TouchMgr.isTouchUp("pause"))
+		{
+			popupResultBoard();
+			return;
+		}
+
+		if (Input.GetKeyDown(KeyCode.Escape)) 
 		{
 			popupResultBoard();
 			return;
