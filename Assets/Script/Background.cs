@@ -282,7 +282,7 @@ public class Background : MonoBehaviour {
 			{
 				BrickType type = BrickType.Normal;
 				int rand = Random.Range(0, 1000);
-				if (400+Mathf.Min(m_score.getNumber()/300, 700) < rand)
+				if (400+Mathf.Min(m_score.getNumber()/300, 400) < rand)
 				{
 					++normalBricks;
 				}
@@ -423,7 +423,13 @@ public class Background : MonoBehaviour {
 				{
 					ParticleSystem particle = bullet.m_shootingEffect.GetComponent<ParticleSystem>();
 					if (particle != null)
+					{
 						particle.emissionRate = 0;
+					}
+					else
+					{
+						bullet.m_shootingEffect.SetActive(false);
+					}
 				}
 
 				bool bombAble = upperType == BrickType.Obstacle;
