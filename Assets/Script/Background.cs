@@ -123,9 +123,9 @@ public class Background : MonoBehaviour {
 	void Start () {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
+		GameBlackboard.init();
 		GameBlackboard.m_gameState = GameState.RUNNING;
 		// session starts
-
 		m_ga = this.GetComponent<CGoogleAnalytics>();
 		m_ga.analytics.TrackSession(true);
 
@@ -720,7 +720,7 @@ public class Background : MonoBehaviour {
 
 		Vector3 scale = m_prefFeverBar.transform.localScale;
 		scale.y = m_fever.getChargeValue()/100f;
-		Debug.Log(scale);
+
 		m_prefFeverBar.transform.localScale = scale;
 
 		if (m_frictionForDownSpeed > 0)
@@ -740,7 +740,7 @@ public class Background : MonoBehaviour {
 			Social.ReportScore(m_score.getNumber(), "CgkIjZHLmpcVEAIQBg", (bool success) => {
 			});
 
-			GameBlackboard.m_gameState = GameState.PEDING_QUIT;	
+			GameBlackboard.m_gameState = GameState.GAME_OVER;	
 			return;
 		}
 
@@ -752,15 +752,15 @@ public class Background : MonoBehaviour {
 			return;
 		}
 
-		if (Input.GetKeyDown(KeyCode.Escape)) 
+		if (Input.GetKeyUp(KeyCode.Escape)) 
 		{
-			popupResultBoard();
+			GameBlackboard.popupQuit();
 			return;
 		}
 
 		if(touchedCount > 0)
 		{
-			//if (Time.time-shootLastTime > ShootCoolTime)
+			//if (TouchMgr.GetTouchedPos(i).y < bottomLinePosY/2)
 			{
 				for(int i = 0; i < touchedCount; i++)
 				{
@@ -776,6 +776,11 @@ public class Background : MonoBehaviour {
 								break;
 							}
 						}
+					}
+
+					if (TouchMgr.GetTouchedPos(i).y > (bottomLinePosY-topLinePos)/3)
+					{
+						shootable = false;
 					}
 					
 					if (shootable == true)

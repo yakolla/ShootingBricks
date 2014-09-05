@@ -3,7 +3,6 @@ using System.Collections;
 
 public class PopupResult : MonoBehaviour {
 
-	GameObject m_prefRestartAds = null;
 
 	// Use this for initialization
 	void Start () {
@@ -14,7 +13,7 @@ public class PopupResult : MonoBehaviour {
 
 	void resume()
 	{
-		if (GameBlackboard.m_gameState == GameState.PEDING_QUIT)
+		if (GameBlackboard.m_gameState == GameState.GAME_OVER)
 		{					
 			Application.LoadLevel("main");
 		}
@@ -51,13 +50,7 @@ public class PopupResult : MonoBehaviour {
 			return;
 		}
 
-		if (TouchMgr.isTouchUp("quit"))
-		{
-			Application.Quit();
-			return;
-		}
-
-		if (Input.GetKeyDown(KeyCode.Escape)) 
+		if (Input.GetKeyUp(KeyCode.Escape)) 
 		{
 			resume();
 			return;

@@ -39,16 +39,17 @@
 	<Reference Include="System.Core" />
 	<Reference Include="System.Xml.Linq" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>D:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>D:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Script\Background.cs" />
      <Compile Include="Assets\Script\Fever.cs" />
      <Compile Include="Assets\Script\GameBlackboard.cs" />
+     <Compile Include="Assets\Script\PopupQuit.cs" />
      <Compile Include="Assets\Script\PopupResult.cs" />
      <Compile Include="Assets\Script\RestartAds.cs" />
      <Compile Include="Assets\Script\Score.cs" />
@@ -141,7 +142,7 @@
      <None Include="Assets\Plugins\Android\google-play-services_lib\res\values-ar\common_strings.xml" />
      <None Include="Assets\Plugins\Android\MainLibProj\AndroidManifest.xml" />
  <Reference Include="GPGSUtils">
- <HintPath>D:/github/ShootingBricks/ShootingBricks/Assets/Plugins/GPGSUtils.dll</HintPath>
+ <HintPath>D:/Programming/CodeProject/Mobile/GitHub/ShootingBricks/Assets/Plugins/GPGSUtils.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>

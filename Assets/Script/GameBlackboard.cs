@@ -12,16 +12,37 @@ using UnityEngine;
 
 public enum GameState
 {
+	EMPTY,
 	RUNNING,
 	PAUSE,
-	PEDING_QUIT,
+	GAME_OVER,
+	QUIT,
 };
 
 public static class GameBlackboard
 {
-	static public GameState	m_gameState = GameState.RUNNING;
+	static public GameState	m_gameState = GameState.EMPTY;
 	static public int		m_curScore = 0;
 	static public int		m_highScore = 0;
+	static GameObject		m_prefPopupQuit = null;
+	static GameObject		m_popupQuit = null;
+
+	static public void init()
+	{
+
+		m_prefPopupQuit = Resources.Load<GameObject>("Pref/PopupQuit");
+		m_popupQuit = MonoBehaviour.Instantiate (m_prefPopupQuit, m_prefPopupQuit.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
+		m_popupQuit.SetActive(false);
+
+	}
+
+	static public void popupQuit()
+	{
+		m_gameState = GameState.QUIT;
+		m_popupQuit.SetActive(true);
+	}
+
+
 	static public void		updateScore(int score)
 	{
 		if (m_highScore < score)
