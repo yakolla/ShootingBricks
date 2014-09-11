@@ -94,6 +94,8 @@ public class Background : MonoBehaviour {
 	Sprite[] 			m_sprLineBars = null;
 	Sprite[] 			m_sprLineButtons = null;
 	Sprite[] 			m_sprObstacleNumbers = null;
+	Sprite 				m_sprFeverBgEffect = null;
+	Sprite				m_sprDangerBgEffect = null;
 	Material[] 			m_metBricks = null;
 	GameObject[] 		m_lineButtons = new GameObject[MAX_COL];
 	GameObject[] 		m_lineBars = new GameObject[MAX_COL];
@@ -160,6 +162,8 @@ public class Background : MonoBehaviour {
 
 		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
+		m_sprFeverBgEffect = Resources.Load<Sprite>("Sprite/feverBgEffect");
+		m_sprDangerBgEffect = Resources.Load<Sprite>("Sprite/danger");
 		createLineBars();
 		createButtons();
 	}
@@ -167,6 +171,8 @@ public class Background : MonoBehaviour {
 	void OnStartFever()
 	{		
 		m_prefBackgroundEffect.SetTrigger("Fever");
+		m_prefDangerEffect.GetComponent<SpriteRenderer>().sprite = m_sprFeverBgEffect;
+		m_prefDangerEffect.SetTrigger("DangerOn");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			m_feverCountOfShootingBrick[col] += 1;
@@ -178,6 +184,8 @@ public class Background : MonoBehaviour {
 	void OnEndFever()
 	{		
 		m_prefBackgroundEffect.SetTrigger("Normal");
+		m_prefDangerEffect.GetComponent<SpriteRenderer>().sprite = m_sprDangerBgEffect;
+		m_prefDangerEffect.SetTrigger("DangerOff");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			m_lineButtons[col].GetComponent<Animator>().SetTrigger("Normal");
@@ -330,7 +338,7 @@ public class Background : MonoBehaviour {
 	}
 
 
-	void scrollDownBricks(Vector3 v)
+	bool scrollDownBricks(Vector3 v)
 	{
 		bool danger = false;
 		ArrayList deleted = new ArrayList();
@@ -363,24 +371,7 @@ public class Background : MonoBehaviour {
 
 		}
 
-		if (m_fever.isFeverMode() == false)
-		{
-			if (danger == true)
-			{
-				//m_prefBackgroundEffect.SetTrigger("Danger");
-				m_prefDangerEffect.SetTrigger("DangerOn");
-			}
-			else
-			{
-				m_prefBackgroundEffect.SetTrigger("Normal");
-				m_prefDangerEffect.SetTrigger("DangerOff");
-			}
-		}
-		else
-		{
-			m_prefBackgroundEffect.SetTrigger("Fever");
-		}
-
+		return danger;
 	}
 
 	void playCrashEffect (Brick bullet)
@@ -719,11 +710,30 @@ public class Background : MonoBehaviour {
 			topBricksLinePosY = topLinePos;
 		}
 
-		scrollDownBricks(scrollDownPos);
+		bool danger = scrollDownBricks(scrollDownPos);
 		scrollUpBullets(scrollUpPos);
 		scrollUpUncombinedBricks(scrollUpPos);
 		delteCompletedLine((BombBrickType)DefaultBombBrickType);
 		destoryThrowAwayBricks();
+
+		if (m_fever.isFeverMode() == false)
+		{
+			if (danger == true)
+			{
+				//m_prefBackgroundEffect.SetTrigger("Danger");
+				m_prefDangerEffect.SetTrigger("DangerOn");
+			}
+			else
+			{
+				m_prefBackgroundEffect.SetTrigger("Normal");
+				m_prefDangerEffect.SetTrigger("DangerOff");
+			}
+		}
+		else
+		{
+			m_prefBackgroundEffect.SetTrigger("Fever");
+			m_prefDangerEffect.SetTrigger("DangerOn");
+		}
 
 		Vector3 scale = m_prefFeverBar.transform.localScale;
 		scale.y = m_fever.getChargeValue()/100f;

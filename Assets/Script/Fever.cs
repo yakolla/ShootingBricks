@@ -77,9 +77,14 @@ public class Fever : MonoBehaviour {
 
 		if (m_feverMode == true)
 		{
+
 			if (Time.time-m_feverStartTime >= m_feverDurationTime)
 			{
 				endFeverMode();
+			}
+			else
+			{
+				m_chargeGuage = (m_feverDurationTime-(Time.time-m_feverStartTime))/m_feverDurationTime*100f;
 			}
 		}
 		else
