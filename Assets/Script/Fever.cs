@@ -79,7 +79,7 @@ public class Fever : MonoBehaviour {
 		{
 			if (Time.time-m_feverStartTime >= m_feverDurationTime)
 			{
-				//endFeverMode();
+				endFeverMode();
 			}
 		}
 		else

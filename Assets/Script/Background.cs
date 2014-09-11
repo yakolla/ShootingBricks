@@ -87,6 +87,7 @@ public class Background : MonoBehaviour {
 	const int	MAX_OBSTACLE_COUNT = 1;
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip	shootingSound = null;
+	public AudioClip	bombBrickSound = null;
 	public AudioClip	hittingBrickSound = null;
 
 	CGoogleAnalytics 	m_ga;
@@ -156,6 +157,7 @@ public class Background : MonoBehaviour {
 		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
 		m_prefRestartAds = Resources.Load<GameObject>("Pref/RestartAds");
 		m_prefFeverBar = GameObject.Find("/FeverBar");
+
 		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
 		createLineBars();
@@ -176,6 +178,10 @@ public class Background : MonoBehaviour {
 	void OnEndFever()
 	{		
 		m_prefBackgroundEffect.SetTrigger("Normal");
+		for(int col = 0; col < MAX_COL; ++col)
+		{
+			m_lineButtons[col].GetComponent<Animator>().SetTrigger("Normal");
+		}
 	}
 
 	void createLineBars()
@@ -486,13 +492,14 @@ public class Background : MonoBehaviour {
 					bullet.m_creationTime = Time.time;
 
 					playBounceEffect(bullet.m_col);
-
+					audio.PlayOneShot(hittingBrickSound);
 				}
 
 				if (removeBullet == true)
 				{
 					m_bullets.RemoveAt(b);
 				}
+
 
 			}	
 		}
@@ -640,7 +647,7 @@ public class Background : MonoBehaviour {
 		m_score.setNumber(m_score.getNumber() + 1);
 		m_throwAwayBricks.Add(brick);
 
-		audio.PlayOneShot(hittingBrickSound);
+		audio.PlayOneShot(bombBrickSound);
 	}
 	
 	void delteCompletedLine(BombBrickType type)
@@ -720,8 +727,10 @@ public class Background : MonoBehaviour {
 
 		Vector3 scale = m_prefFeverBar.transform.localScale;
 		scale.y = m_fever.getChargeValue()/100f;
+		//m_prefFeverBar.transform.localScale = scale;
 
-		m_prefFeverBar.transform.localScale = scale;
+		SpriteRenderer renderer=m_prefFeverBar.GetComponentInChildren<SpriteRenderer>();
+		renderer.material.SetTextureOffset ("_MainTex", new Vector2(0f,1-scale.y));
 
 		if (m_frictionForDownSpeed > 0)
 		{
@@ -789,7 +798,8 @@ public class Background : MonoBehaviour {
 						m_lineBars[col].GetComponent<Animator>().SetTrigger("Touch");
 						m_lineButtons[col].GetComponent<Animator>().SetTrigger("Touch");
 
-						shootBullet(col, m_feverCountOfShootingBrick[col]>0);
+						//shootBullet(col, m_feverCountOfShootingBrick[col]>0);
+						shootBullet(col, m_fever.isFeverMode());
 						m_feverCountOfShootingBrick[col] = Mathf.Max(0, m_feverCountOfShootingBrick[col]-1);
 
 						if (m_fever.isFeverMode())
@@ -802,7 +812,7 @@ public class Background : MonoBehaviour {
 							
 							if (remainFeverCount == 0)
 							{
-								m_fever.endFeverMode();
+								//m_fever.endFeverMode();
 							}
 						}
 
