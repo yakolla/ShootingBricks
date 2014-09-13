@@ -5,9 +5,12 @@ namespace GoogleMobileAds.Common
 {
     internal class DummyClient : IGoogleMobileAdsBannerClient, IGoogleMobileAdsInterstitialClient
     {
+		IAdListener	m_listener;
         public DummyClient(IAdListener listener)
         {
             Debug.Log("Created DummyClient");
+			m_listener = listener;
+
         }
 
         public void CreateBannerView(string adUnitId, AdSize adSize, AdPosition position)
@@ -18,6 +21,7 @@ namespace GoogleMobileAds.Common
         public void LoadAd(AdRequest request)
         {
             Debug.Log("Dummy LoadAd");
+			m_listener.FireAdClosed();
         }
 
         public void ShowBannerView()
