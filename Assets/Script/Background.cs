@@ -52,6 +52,30 @@ class Brick
 	}
 }
 
+class FeverBar
+{
+	public GameObject 	m_obj;
+	public Renderer		m_left;
+	public Renderer		m_right;
+
+	public FeverBar()
+	{
+		m_obj = GameObject.Find("/FeverBar");
+		m_left = GameObject.Find("/FeverBar/Left").GetComponent<SpriteRenderer>();
+		m_right = GameObject.Find("/FeverBar/Right").GetComponent<SpriteRenderer>();
+	}
+
+	public void setRightHeight(float height)
+	{
+		m_right.material.SetTextureOffset ("_MainTex", new Vector2(0f,1-height));
+	}
+
+	public void setLeftHeight(float height)
+	{
+		m_left.material.SetTextureOffset ("_MainTex", new Vector2(0f,1-height));
+	}
+}
+
 class PopupResultObject
 {
 	GameObject 	m_obj;
@@ -105,7 +129,7 @@ public class Background : MonoBehaviour {
 	GameObject 			m_prefShootingEffect = null;
 	GameObject 			m_prefFeverShootingEffect = null;
 	GameObject 			m_prefRestartAds = null;
-	GameObject			m_prefFeverBar = null;
+	FeverBar			m_feverBar = null;
 	Animator			m_prefDangerEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
 
@@ -120,6 +144,7 @@ public class Background : MonoBehaviour {
 	float 				m_frictionForDownSpeed=0;
 	Fever 				m_fever = null;
 	Score				m_score = null;
+	float				m_alphaScore = 0f;
 	PopupResultObject	m_popupResultObject = null;
 	int[]				m_feverCountOfShootingBrick = new int[MAX_COL];
 	int 				m_hp = 1;
@@ -160,7 +185,8 @@ public class Background : MonoBehaviour {
 		m_prefFeverShootingEffect = Resources.Load<GameObject>("Pref/fever shot ef");
 		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
 		m_prefRestartAds = Resources.Load<GameObject>("Pref/RestartAds");
-		m_prefFeverBar = GameObject.Find("/FeverBar");
+
+		m_feverBar = new FeverBar();
 
 		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
@@ -169,7 +195,10 @@ public class Background : MonoBehaviour {
 		createLineBars();
 		createButtons();
 	}
-
+	void OnClosedAds(object sender, System.EventArgs args)
+	{
+		popupResultBoard();
+	}
 	void OnStartFever()
 	{		
 		m_prefBackgroundEffect.SetTrigger("Fever");
@@ -363,7 +392,7 @@ public class Background : MonoBehaviour {
 					danger = true;
 				}
 
-				bottomBricksLinePosY = Mathf.Min(brick.m_object.transform.position.y, bottomBricksLinePosY);
+				bottomBricksLinePosY = Mathf.Max(Mathf.Min(brick.m_object.transform.position.y, bottomBricksLinePosY), maxBottomLinePosY);
 			}
 		}
 		foreach(int col in deleted)
@@ -375,6 +404,10 @@ public class Background : MonoBehaviour {
 			m_hp -= 1;
 
 		}
+
+		m_alphaScore = bottomBricksLinePosY;
+		m_feverBar.setLeftHeight(Mathf.Min(m_alphaScore/maxBottomLinePosY, 1f));
+		m_alphaScore *= -1;
 
 		return danger;
 	}
@@ -640,11 +673,8 @@ public class Background : MonoBehaviour {
 			brick.m_object.rigidbody.useGravity = true;
 		}break;
 		}
-		int alpha = 0;
-		if (m_fever.isFeverMode()) 
-			alpha = 5;
 
-		m_score.setNumber(m_score.getNumber() + 1+alpha);
+		m_score.setNumber(m_score.getNumber() + 1 + (int)m_alphaScore);
 		m_throwAwayBricks.Add(brick);
 
 		audio.PlayOneShot(bombBrickSound);
@@ -696,11 +726,18 @@ public class Background : MonoBehaviour {
 		float speedScore = Mathf.Log(score, 0.001f);
 		return scrollDownSpeed+speedScore;
 	}
-		
+
+	void popupAds()
+	{
+		GameObject ads = Instantiate (m_prefRestartAds, m_prefRestartAds.transform.position, Quaternion.Euler (0, 0, 0)) as GameObject;
+
+		RestartAds restartAds = ads.GetComponent<RestartAds>();
+		restartAds.OnClosedAds += OnClosedAds;
+		restartAds.show();
+	}
 
 	void popupResultBoard()
 	{
-		GameBlackboard.m_gameState = GameState.PAUSE;
 		m_popupResultObject.Show();
 
 	}
@@ -747,12 +784,8 @@ public class Background : MonoBehaviour {
 			m_prefDangerEffect.SetTrigger("DangerOn");
 		}
 
-		Vector3 scale = m_prefFeverBar.transform.localScale;
-		scale.y = m_fever.getChargeValue()/100f;
-		//m_prefFeverBar.transform.localScale = scale;
-
-		SpriteRenderer renderer=m_prefFeverBar.GetComponentInChildren<SpriteRenderer>();
-		renderer.material.SetTextureOffset ("_MainTex", new Vector2(0f,1-scale.y));
+		float feverHeight = m_fever.getChargeValue()/100f;
+		m_feverBar.setRightHeight(feverHeight);
 
 		if (m_frictionForDownSpeed > 0)
 		{
@@ -762,16 +795,13 @@ public class Background : MonoBehaviour {
 
 		if (m_hp <= 0)
 		{
-			Instantiate (m_prefRestartAds, m_prefRestartAds.transform.position, Quaternion.Euler (0, 0, 0));
+			GameBlackboard.m_gameState = GameState.GAME_OVER;	
 			GameBlackboard.updateScore(m_score.getNumber());
-			popupResultBoard();		
-
+			popupAds();
 			m_ga.analytics.TrackAppview("Score " + m_score.getNumber());
-
 			Social.ReportScore(m_score.getNumber(), "CgkIjZHLmpcVEAIQBg", (bool success) => {
 			});
 
-			GameBlackboard.m_gameState = GameState.GAME_OVER;	
 			return;
 		}
 
@@ -779,6 +809,7 @@ public class Background : MonoBehaviour {
 
 		if (TouchMgr.isTouchUp("pause"))
 		{
+			GameBlackboard.m_gameState = GameState.PAUSE;
 			popupResultBoard();
 			return;
 		}

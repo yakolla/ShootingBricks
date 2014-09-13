@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Fever : MonoBehaviour {
 
-	float	m_chargeGuage=0f;
+	float			m_chargeGuage=0f;
 	public float	m_chargeUpValue=10f;
 	public float	m_chargeDownValue=3f;
 	public float	m_chargeDownTime=1f;
