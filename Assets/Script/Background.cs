@@ -99,6 +99,41 @@ class PopupResultObject
 	}
 }
 
+class BgEffect
+{
+	GameObject	m_obj;
+	Animator	m_ani;
+	SpriteRenderer	m_render;
+	Sprite 		m_sprFeverBgEffect = null;
+	Sprite		m_sprDangerBgEffect = null;
+
+	public BgEffect()
+	{
+		m_obj = GameObject.Find("/DangerEffect");
+		m_render = m_obj.GetComponent<SpriteRenderer>();
+		m_ani = m_obj.GetComponent<Animator>();
+		m_sprFeverBgEffect = Resources.Load<Sprite>("Sprite/feverBgEffect");
+		m_sprDangerBgEffect = Resources.Load<Sprite>("Sprite/danger");
+
+		setDanagerEffect();
+	}
+
+	public void setAniTrigger(string name)
+	{
+		m_ani.SetTrigger(name);
+	}
+
+	public void setDanagerEffect()
+	{
+		m_render.sprite = m_sprDangerBgEffect;
+	}
+
+	public void setFeverEffect()
+	{
+		m_render.sprite = m_sprFeverBgEffect;
+	}
+}
+
 
 [RequireComponent(typeof(AudioSource))]
 public class Background : MonoBehaviour {
@@ -119,8 +154,6 @@ public class Background : MonoBehaviour {
 	Sprite[] 			m_sprLineBars = null;
 	Sprite[] 			m_sprLineButtons = null;
 	Sprite[] 			m_sprObstacleNumbers = null;
-	Sprite 				m_sprFeverBgEffect = null;
-	Sprite				m_sprDangerBgEffect = null;
 	Material[] 			m_metBricks = null;
 	GameObject[] 		m_lineButtons = new GameObject[MAX_COL];
 	GameObject[] 		m_lineBars = new GameObject[MAX_COL];
@@ -130,7 +163,7 @@ public class Background : MonoBehaviour {
 	GameObject 			m_prefFeverShootingEffect = null;
 	GameObject 			m_prefRestartAds = null;
 	FeverBar			m_feverBar = null;
-	Animator			m_prefDangerEffect = null;
+	BgEffect			m_bgEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
 
 	ArrayList[] 		m_listBricks = new ArrayList[MAX_COL];
@@ -150,7 +183,7 @@ public class Background : MonoBehaviour {
 	int 				m_hp = 1;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 
 		Screen.SetResolution(Screen.width, Screen.width/2*3, true);
 		GameBlackboard.init();
@@ -183,15 +216,14 @@ public class Background : MonoBehaviour {
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
 		m_prefFeverShootingEffect = Resources.Load<GameObject>("Pref/fever shot ef");
-		m_prefDangerEffect = GameObject.Find("/DangerEffect").GetComponent<Animator>();
+
 		m_prefRestartAds = Resources.Load<GameObject>("Pref/RestartAds");
 
 		m_feverBar = new FeverBar();
-
+		m_bgEffect = new BgEffect();
 		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
-		m_sprFeverBgEffect = Resources.Load<Sprite>("Sprite/feverBgEffect");
-		m_sprDangerBgEffect = Resources.Load<Sprite>("Sprite/danger");
+
 		createLineBars();
 		createButtons();
 	}
@@ -202,8 +234,8 @@ public class Background : MonoBehaviour {
 	void OnStartFever()
 	{		
 		m_prefBackgroundEffect.SetTrigger("Fever");
-		m_prefDangerEffect.GetComponent<SpriteRenderer>().sprite = m_sprFeverBgEffect;
-		m_prefDangerEffect.SetTrigger("DangerOn");
+		m_bgEffect.setFeverEffect();
+		m_bgEffect.setAniTrigger("DangerOn");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			m_feverCountOfShootingBrick[col] += 1;
@@ -215,8 +247,8 @@ public class Background : MonoBehaviour {
 	void OnEndFever()
 	{		
 		m_prefBackgroundEffect.SetTrigger("Normal");
-		m_prefDangerEffect.GetComponent<SpriteRenderer>().sprite = m_sprDangerBgEffect;
-		m_prefDangerEffect.SetTrigger("DangerOff");
+		m_bgEffect.setDanagerEffect();
+		m_bgEffect.setAniTrigger("DangerOff");
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			m_lineButtons[col].GetComponent<Animator>().SetTrigger("Normal");
@@ -770,18 +802,18 @@ public class Background : MonoBehaviour {
 			if (danger == true)
 			{
 				//m_prefBackgroundEffect.SetTrigger("Danger");
-				m_prefDangerEffect.SetTrigger("DangerOn");
+				m_bgEffect.setAniTrigger("DangerOn");
 			}
 			else
 			{
 				m_prefBackgroundEffect.SetTrigger("Normal");
-				m_prefDangerEffect.SetTrigger("DangerOff");
+				m_bgEffect.setAniTrigger("DangerOff");
 			}
 		}
 		else
 		{
 			m_prefBackgroundEffect.SetTrigger("Fever");
-			m_prefDangerEffect.SetTrigger("DangerOn");
+			m_bgEffect.setAniTrigger("DangerOn");
 		}
 
 		float feverHeight = m_fever.getChargeValue()/100f;
