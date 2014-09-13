@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 17125e48b64d7f74ea03235f2b244e78
+guid: f0679e26d45ae514383db511a6f6f87b
 TextureImporter:
   fileIDToRecycleName:
-    21300000: ShockWave
+    21300000: sparkle04_3_
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -26,9 +26,9 @@ TextureImporter:
   maxTextureSize: 1024
   textureSettings:
     filterMode: -1
-    aniso: 1
+    aniso: -1
     mipBias: -1
-    wrapMode: 1
+    wrapMode: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
