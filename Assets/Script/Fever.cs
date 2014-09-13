@@ -21,13 +21,13 @@ public class Fever : MonoBehaviour {
 		m_lastChargeUpTime = Time.time;
 	}
 
-	public void chargeUp()
+	public void chargeUp(float alpha)
 	{
 		if (m_feverMode == true)
 			return;
 
 		m_lastChargeUpTime = Time.time;
-		m_chargeGuage = Mathf.Min(100, m_chargeGuage+m_chargeUpValue);
+		m_chargeGuage = Mathf.Min(100, m_chargeGuage+m_chargeUpValue+alpha);
 		if (m_chargeGuage == 100)
 		{
 			startFeverMode();
