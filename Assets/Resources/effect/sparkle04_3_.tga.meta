@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 8e39117a51600b74597f59f6eac1551d
+guid: f0679e26d45ae514383db511a6f6f87b
 TextureImporter:
   fileIDToRecycleName:
-    21300000: touch start
+    21300000: sparkle04_3_
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -25,10 +25,10 @@ TextureImporter:
   textureFormat: -3
   maxTextureSize: 1024
   textureSettings:
-    filterMode: 0
-    aniso: 1
+    filterMode: -1
+    aniso: -1
     mipBias: -1
-    wrapMode: 1
+    wrapMode: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
