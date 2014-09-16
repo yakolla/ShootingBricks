@@ -143,7 +143,7 @@ public class Background : MonoBehaviour {
 	const float leftLinePos = 0f;
 	const float maxBottomLinePosY = -8f;
 	const float topLinePos = 1f;
-	const int	MAX_OBSTACLE_COUNT = 1;
+	const int	MAX_OBSTACLE_COUNT = 3;
 
 	public int DefaultBombBrickType = (int)BombBrickType.A_TYPE;
 	public AudioClip[]	shootingSounds = new AudioClip[MAX_COL];
@@ -168,6 +168,8 @@ public class Background : MonoBehaviour {
 	FeverBar			m_feverBar = null;
 	BgEffect			m_bgEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
+	int					m_bossCount = 0;
+	int					m_lastBossScore = 0;
 
 	ArrayList[] 		m_listBricks = new ArrayList[MAX_COL];
 	ArrayList 			m_bullets = new ArrayList();
@@ -367,7 +369,7 @@ public class Background : MonoBehaviour {
 			{
 				BrickType type = BrickType.Normal;
 				int rand = Random.Range(0, 1000);
-				if (400+Mathf.Min(m_score.getNumber()/300, 400) < rand)
+				if (rand < 600-Mathf.Min(m_score.getNumber()/25, 200) && m_bossCount == 0)
 				{
 					++normalBricks;
 				}
@@ -378,7 +380,7 @@ public class Background : MonoBehaviour {
 				
 				types[i] = type;
 			}
-		}while(normalBricks == MAX_COL);
+		}while(normalBricks == MAX_COL || normalBricks == 0);
 
 		for (int i = 0; i < MAX_COL; ++i) 
 		{
@@ -386,7 +388,21 @@ public class Background : MonoBehaviour {
 
 			int overlapCount = 0;
 			if (type == BrickType.Obstacle)
-				overlapCount = Random.Range(0, Mathf.Min (MAX_OBSTACLE_COUNT+1, m_score.getNumber()/100));
+			{
+				if (m_bossCount > 0)				
+				{
+					overlapCount = 1;
+					--m_bossCount;
+				}
+				else
+				{
+					overlapCount = Random.Range(0, 1+1);
+					
+					bool warmingUp = m_score.getNumber() < 500;
+					if (warmingUp == true)
+						overlapCount = 0;
+				}
+			}
 
 			Brick brick = createBrick(i, type, overlapCount, false);
 			if (m_listBricks[i].Count > 0)
@@ -720,6 +736,12 @@ public class Background : MonoBehaviour {
 		}
 
 		m_score.setNumber(m_score.getNumber() + 1 + (int)m_alphaScore+bonusScore);
+		if (m_score.getNumber()-m_lastBossScore > 3000)
+		{
+			m_lastBossScore += 3000;
+			m_bossCount+=10;
+		}
+
 		m_throwAwayBricks.Add(brick);
 
 		if (brick.m_type != BrickType.Obstacle)
@@ -737,7 +759,18 @@ public class Background : MonoBehaviour {
 		if (compLine == -1)
 			return;
 
-		int lastShootCol = Random.Range(0, MAX_COL);
+		int lastShootCol = 0;
+		float creationTime = 0f;
+		for(int col = 0; col < MAX_COL; ++col)
+		{
+			Brick brick = (Brick)m_listBricks[col][compLine];
+			if (creationTime <= brick.m_creationTime)
+			{
+				creationTime = brick.m_creationTime;
+				lastShootCol = col;
+			}
+		}
+
 		for(int col = 0; col < MAX_COL; ++col)
 		{
 			Brick brick = (Brick)m_listBricks[col][compLine];
