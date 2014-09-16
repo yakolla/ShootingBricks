@@ -6,7 +6,7 @@ public class Bonus : MonoBehaviour {
 
 	// Use this for initialization
 	void onFinishedAni () {	
-		DestroyObject(this);
+		DestroyObject(this.transform.parent.gameObject);
 	}
 
 

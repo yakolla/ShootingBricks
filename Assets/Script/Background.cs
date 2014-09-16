@@ -369,7 +369,7 @@ public class Background : MonoBehaviour {
 			{
 				BrickType type = BrickType.Normal;
 				int rand = Random.Range(0, 1000);
-				if (rand < 600-Mathf.Min(m_score.getNumber()/25, 200) && m_bossCount == 0)
+				if (rand < 600-Mathf.Min(m_score.getNumber()/25, 200))
 				{
 					++normalBricks;
 				}
@@ -391,7 +391,7 @@ public class Background : MonoBehaviour {
 			{
 				if (m_bossCount > 0)				
 				{
-					overlapCount = 1;
+					overlapCount = 3;
 					--m_bossCount;
 				}
 				else
@@ -732,14 +732,15 @@ public class Background : MonoBehaviour {
 				bonusScore = 100;
 				
 				Instantiate (m_prefBonusEffect, new Vector3(lastShootCol, brick.m_object.transform.position.y, brick.m_object.transform.position.z-1), Quaternion.Euler (0, 0, 0));
+
 			}
 		}
 
 		m_score.setNumber(m_score.getNumber() + 1 + (int)m_alphaScore+bonusScore);
-		if (m_score.getNumber()-m_lastBossScore > 3000)
+		if (m_score.getNumber()-m_lastBossScore > 1000)
 		{
-			m_lastBossScore += 3000;
-			m_bossCount+=10;
+			m_lastBossScore += 1000;
+			m_bossCount+=1;
 		}
 
 		m_throwAwayBricks.Add(brick);
