@@ -163,6 +163,8 @@ public class Background : MonoBehaviour {
 	GameObject 			m_prefShootingEffect = null;
 	GameObject 			m_prefFeverShootingEffect = null;
 	GameObject 			m_prefRestartAds = null;
+	GameObject			m_gameOverEffect = null;
+	GameObject			m_prefBonusEffect = null;
 	FeverBar			m_feverBar = null;
 	BgEffect			m_bgEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
@@ -218,8 +220,10 @@ public class Background : MonoBehaviour {
 		m_prefCrashEffect = Resources.Load<GameObject>("Pref/CrashEffect");
 		m_prefShootingEffect = Resources.Load<GameObject>("Pref/shoot particle");
 		m_prefFeverShootingEffect = Resources.Load<GameObject>("Pref/fever shot ef");
-
+		m_prefBonusEffect = Resources.Load<GameObject>("Pref/Bonus");
 		m_prefRestartAds = Resources.Load<GameObject>("Pref/RestartAds");
+		m_gameOverEffect = GameObject.Find("/GameOver") as GameObject;
+		m_gameOverEffect.SetActive(false);
 
 		m_feverBar = new FeverBar();
 		m_bgEffect = new BgEffect();
@@ -231,6 +235,8 @@ public class Background : MonoBehaviour {
 	}
 	void OnClosedAds(object sender, System.EventArgs args)
 	{
+		m_gameOverEffect.SetActive(false);
+		
 		popupResultBoard();
 	}
 	void OnStartFever()
@@ -702,11 +708,17 @@ public class Background : MonoBehaviour {
 		}
 
 		int bonusScore = 0;
-		if (maxAlphaScore <= m_alphaScore)
+
+		if (brick.m_type != BrickType.Obstacle)
 		{
-			bonusScore = 100;
-			Debug.Log("bonus");
+			if (maxAlphaScore <= m_alphaScore)
+			{
+				bonusScore = 100;
+				
+				Instantiate (m_prefBonusEffect, new Vector3(lastShootCol, brick.m_object.transform.position.y, brick.m_object.transform.position.z-1), Quaternion.Euler (0, 0, 0));
+			}
 		}
+
 		m_score.setNumber(m_score.getNumber() + 1 + (int)m_alphaScore+bonusScore);
 		m_throwAwayBricks.Add(brick);
 
@@ -836,6 +848,7 @@ public class Background : MonoBehaviour {
 
 		if (m_hp <= 0)
 		{
+			m_gameOverEffect.SetActive(true);
 			GameBlackboard.m_gameState = GameState.GAME_OVER;	
 			GameBlackboard.updateScore(m_score.getNumber());
 			popupAds();

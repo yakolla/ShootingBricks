@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Script\Background.cs" />
+     <Compile Include="Assets\Script\Bonus.cs" />
      <Compile Include="Assets\Script\Fever.cs" />
      <Compile Include="Assets\Script\GameBlackboard.cs" />
      <Compile Include="Assets\Script\PopupQuit.cs" />
