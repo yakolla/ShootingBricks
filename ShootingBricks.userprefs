@@ -2,7 +2,8 @@
   <MonoDevelop.Ide.Workspace />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Background.cs">
     <Files>
-      <File FileName="Assets\Script\Background.cs" Line="1" Column="1" />
+      <File FileName="Assets\Script\Background.cs" Line="749" Column="24" />
+      <File FileName="Assets\Script\Bezier.cs" Line="46" Column="13" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
