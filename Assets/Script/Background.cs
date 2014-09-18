@@ -35,6 +35,7 @@ class Brick
 	public GameObject	m_crashEffect;
 	public GameObject	m_shootingEffect;
 	public bool			m_enableFeverMode;
+	public bool			m_byUserInput = false;
 	public Brick		Clone()
 	{
 		Brick dupBrick = new Brick();
@@ -165,6 +166,7 @@ public class Background : MonoBehaviour {
 	GameObject 			m_prefRestartAds = null;
 	GameObject			m_gameOverEffect = null;
 	GameObject			m_prefBonusEffect = null;
+	GameObject			m_prefBonusChargeSoul = null;
 	FeverBar			m_feverBar = null;
 	BgEffect			m_bgEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
@@ -183,11 +185,12 @@ public class Background : MonoBehaviour {
 	float 				m_frictionForDownSpeed=0;
 	Fever 				m_fever = null;
 	Score				m_score = null;
-	float				m_alphaScore = 0f;
+	float				m_bonusChargeValue = 0f;
 	PopupResultObject	m_popupResultObject = null;
 	int[]				m_feverCountOfShootingBrick = new int[MAX_COL];
 	int 				m_hp = 1;
-
+	ArrayList			m_beziers = new ArrayList();
+	ArrayList			m_removalBeziers = new ArrayList();
 	// Use this for initialization
 	void Awake () {
 
@@ -231,6 +234,8 @@ public class Background : MonoBehaviour {
 		m_bgEffect = new BgEffect();
 		m_popupResultObject = new PopupResultObject();
 		m_sprObstacleNumbers = Resources.LoadAll<Sprite>("Sprite/obstacleBrickNumbers");
+
+		m_prefBonusChargeSoul = Resources.Load<GameObject>("Pref/BonusChargeSoul");
 
 		createLineBars();
 		createButtons();
@@ -567,12 +572,21 @@ public class Background : MonoBehaviour {
 					playCrashEffect(bullet);
 
 					m_listBricks[bullet.m_col].Add(bullet);
-					bullet.m_creationTime = Time.time;
+
+					if (bullet.m_byUserInput == true)
+					{
+						m_bonusChargeValue += 1;
+						Vector3 org = bullet.m_object.transform.position;
+						org.z = m_prefBonusChargeSoul.transform.position.z;
+						GameObject bz = Instantiate(m_prefBonusChargeSoul, org, Quaternion.Euler (0, 0, 0)) as GameObject;
+						m_beziers.Add(new Bezier(bz, new Vector3(-0.5f, 0f, 0), new Vector3(bullet.m_object.transform.position.x/2, bullet.m_object.transform.position.y/2, 0), new Vector3(bullet.m_object.transform.position.x/3, bullet.m_object.transform.position.y/3, 0)));
+					}
 
 					playBounceEffect(bullet.m_col);
 					audio.PlayOneShot(hittingBrickSound);
 				}
 
+				bullet.m_byUserInput = false;
 				if (removeBullet == true)
 				{
 					m_bullets.RemoveAt(b);
@@ -630,11 +644,11 @@ public class Background : MonoBehaviour {
 
 	}
 
-	void shootBullet(int col, bool fever)
+	void shootBullet(int col, bool fever, bool byUserInput)
 	{
 		Brick bullet = createBrick(col, BrickType.Bullet, 0, fever);
 		m_bullets.Add(bullet);
-
+		bullet.m_byUserInput = byUserInput;
 
 		audio.PlayOneShot(shootingSounds[col]);
 	}
@@ -727,16 +741,16 @@ public class Background : MonoBehaviour {
 
 		if (brick.m_type != BrickType.Obstacle)
 		{
-			if (maxAlphaScore <= m_alphaScore)
+			if (maxAlphaScore <= m_bonusChargeValue)
 			{
 				bonusScore = 100;
 				
 				Instantiate (m_prefBonusEffect, new Vector3(lastShootCol, brick.m_object.transform.position.y, brick.m_object.transform.position.z-1), Quaternion.Euler (0, 0, 0));
-
+				m_fever.chargeUp(10);
 			}
 		}
 
-		m_score.setNumber(m_score.getNumber() + 1 + (int)m_alphaScore+bonusScore);
+		m_score.setNumber(m_score.getNumber() + 1 + (int)m_bonusChargeValue+bonusScore);
 		if (m_score.getNumber()-m_lastBossScore > 1000)
 		{
 			m_lastBossScore += 1000;
@@ -747,7 +761,7 @@ public class Background : MonoBehaviour {
 
 		if (brick.m_type != BrickType.Obstacle)
 		{
-			m_alphaScore = 0;
+			m_bonusChargeValue = 0;
 		}
 
 
@@ -780,7 +794,7 @@ public class Background : MonoBehaviour {
 		}
 
 		m_frictionForDownSpeed=getScrollDownSpeed()/-1f;
-		m_fever.chargeUp(Mathf.Log(Mathf.Max(1, bottomBricksLinePosY*bottomBricksLinePosY*bottomBricksLinePosY*bottomBricksLinePosY), 2.8f));
+		m_fever.chargeUp(1);
 
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
@@ -826,12 +840,29 @@ public class Background : MonoBehaviour {
 		m_popupResultObject.Show();
 
 	}
+
 	// Update is called once per frame
 
 	void Update () {
 
 		if (GameBlackboard.m_gameState != GameState.RUNNING)
 			return;
+
+		foreach (Bezier bz in m_beziers)
+		{
+			if (false == bz.Update())
+			{
+				m_removalBeziers.Add(bz);
+			}
+		}
+
+		foreach (Bezier bz in m_removalBeziers)
+		{
+			bz.Destroy();
+			m_beziers.Remove(bz);
+		}
+
+		m_removalBeziers.RemoveRange(0, m_removalBeziers.Count);
 
 		Vector3 scrollDownPos = Vector3.up * Mathf.Min(0, getScrollDownSpeed()+m_frictionForDownSpeed) * Time.deltaTime;
 		Vector3 scrollUpPos = Vector3.up * scrollUpSpeed * Time.deltaTime;
@@ -850,7 +881,7 @@ public class Background : MonoBehaviour {
 		delteCompletedLine((BombBrickType)DefaultBombBrickType);
 		destoryThrowAwayBricks();
 		
-		m_feverBar.setLeftHeight(Mathf.Min(m_alphaScore/maxAlphaScore, 1f));
+		m_feverBar.setLeftHeight(Mathf.Min(m_bonusChargeValue/maxAlphaScore, 1f));
 
 		if (m_fever.isFeverMode() == false)
 		{
@@ -940,8 +971,8 @@ public class Background : MonoBehaviour {
 						m_lineButtons[col].GetComponent<Animator>().SetTrigger("Touch");
 
 						//shootBullet(col, m_feverCountOfShootingBrick[col]>0);
-						shootBullet(col, m_fever.isFeverMode());						
-						m_alphaScore += 1;
+						shootBullet(col, m_fever.isFeverMode(), true);
+
 						m_feverCountOfShootingBrick[col] = Mathf.Max(0, m_feverCountOfShootingBrick[col]-1);
 
 						if (m_fever.isFeverMode())
