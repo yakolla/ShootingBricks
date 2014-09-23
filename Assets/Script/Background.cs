@@ -577,9 +577,10 @@ public class Background : MonoBehaviour {
 					{
 						m_bonusChargeValue += 1;
 						Vector3 org = bullet.m_object.transform.position;
-						org.z = m_prefBonusChargeSoul.transform.position.z;
+						org.z = m_prefBonusChargeSoul.transform.position.z-0.1f;
 						GameObject bz = Instantiate(m_prefBonusChargeSoul, org, Quaternion.Euler (0, 0, 0)) as GameObject;
-						m_beziers.Add(new Bezier(bz, new Vector3(-0.8f, 0f, 0), new Vector3(bullet.m_object.transform.position.x/2, bullet.m_object.transform.position.y/2, 0), new Vector3(bullet.m_object.transform.position.x/3, bullet.m_object.transform.position.y/3, 0)));
+						m_beziers.Add(new Bezier(bz, new Vector3(-0.8f, 0f, org.z), new Vector3(org.x+Random.Range(-2, 3), org.y/2, org.z), new Vector3(org.x/3, org.y/-3, org.z)));
+
 					}
 
 					playBounceEffect(bullet.m_col);
