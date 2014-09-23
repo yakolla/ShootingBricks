@@ -50,12 +50,31 @@ TextureImporter:
     - name: fever gage_0
       rect:
         serializedVersion: 2
+<<<<<<< HEAD
         x: 133
         y: 104
         width: 13
         height: 591
       alignment: 0
       pivot: {x: 0, y: 0}
+=======
+        x: 0
+        y: 0
+        width: 82
+        height: 800
+      alignment: 7
+      pivot: {x: .5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: fever gage_1
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 0
+        width: 82
+        height: 800
+      alignment: 7
+      pivot: {x: .5, y: 0}
+>>>>>>> origin/master
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
