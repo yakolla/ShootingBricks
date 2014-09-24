@@ -65,11 +65,6 @@ public class Fever : MonoBehaviour {
 		m_onEndFever();
 	}
 
-	void OnGUI()
-	{
-		GUI.TextArea(new Rect(0, 20, 100, 20), "m_fever: " + m_chargeGuage);
-	}
-
 	// Update is called once per frame
 	void Update () {
 

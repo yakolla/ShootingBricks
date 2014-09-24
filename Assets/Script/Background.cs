@@ -58,12 +58,27 @@ class FeverBar
 	public GameObject 	m_obj;
 	public Renderer		m_left;
 	public Renderer		m_right;
+	public Animator		m_beakerLeft;
+	public Animator		m_beakerRight;
 
 	public FeverBar()
 	{
 		m_obj = GameObject.Find("/FeverBar");
 		m_left = GameObject.Find("/FeverBar/Left").GetComponent<SpriteRenderer>();
 		m_right = GameObject.Find("/FeverBar/Right").GetComponent<SpriteRenderer>();
+
+		m_beakerRight = GameObject.Find("/FeverGuageBar/Right").GetComponent<Animator>();
+		m_beakerLeft = GameObject.Find("/FeverGuageBar/Left").GetComponent<Animator>();
+	}
+
+	public void beakerLeftOn()
+	{
+		m_beakerLeft.SetTrigger("On");
+	}
+
+	public void beakerRightOn()
+	{
+		m_beakerRight.SetTrigger("On");
 	}
 
 	public void setRightHeight(float height)
@@ -170,8 +185,7 @@ public class Background : MonoBehaviour {
 	FeverBar			m_feverBar = null;
 	BgEffect			m_bgEffect = null;
 	Animator 			m_prefBackgroundEffect = null;
-	int					m_bossCount = 0;
-	int					m_lastBossScore = 0;
+
 
 	ArrayList[] 		m_listBricks = new ArrayList[MAX_COL];
 	ArrayList 			m_bullets = new ArrayList();
@@ -394,19 +408,11 @@ public class Background : MonoBehaviour {
 			int overlapCount = 0;
 			if (type == BrickType.Obstacle)
 			{
-				if (m_bossCount > 0)				
-				{
-					overlapCount = 3;
-					--m_bossCount;
-				}
-				else
-				{
-					overlapCount = Random.Range(0, 1+1);
-					
-					bool warmingUp = m_score.getNumber() < 500;
-					if (warmingUp == true)
-						overlapCount = 0;
-				}
+				overlapCount = Random.Range(0, 1+1);
+				
+				bool warmingUp = m_score.getNumber() < 500;
+				if (warmingUp == true)
+					overlapCount = 0;			
 			}
 
 			Brick brick = createBrick(i, type, overlapCount, false);
@@ -579,7 +585,8 @@ public class Background : MonoBehaviour {
 						Vector3 org = bullet.m_object.transform.position;
 						org.z = m_prefBonusChargeSoul.transform.position.z;
 						GameObject bz = Instantiate(m_prefBonusChargeSoul, org, Quaternion.Euler (0, 0, 0)) as GameObject;
-						m_beziers.Add(new Bezier(bz, new Vector3(-0.8f, 0f, 0), new Vector3(bullet.m_object.transform.position.x/2, bullet.m_object.transform.position.y/2, 0), new Vector3(bullet.m_object.transform.position.x/3, bullet.m_object.transform.position.y/3, 0)));
+						m_beziers.Add(new Bezier(bz, new Vector3(-0.8f, 0f, 0), new Vector3(org.x/2, org.y/2, 0), new Vector3(org.x/3, org.y/3, 0)));
+
 					}
 
 					playBounceEffect(bullet.m_col);
@@ -747,15 +754,12 @@ public class Background : MonoBehaviour {
 				
 				Instantiate (m_prefBonusEffect, new Vector3(lastShootCol, brick.m_object.transform.position.y, brick.m_object.transform.position.z-1), Quaternion.Euler (0, 0, 0));
 				m_fever.chargeUp(10);
+				m_feverBar.beakerRightOn();
 			}
 		}
 
 		m_score.setNumber(m_score.getNumber() + 1 + (int)m_bonusChargeValue+bonusScore);
-		if (m_score.getNumber()-m_lastBossScore > 1000)
-		{
-			m_lastBossScore += 1000;
-			m_bossCount+=1;
-		}
+	
 
 		m_throwAwayBricks.Add(brick);
 
@@ -795,7 +799,7 @@ public class Background : MonoBehaviour {
 
 		m_frictionForDownSpeed=getScrollDownSpeed()/-1f;
 		m_fever.chargeUp(1);
-
+		m_feverBar.beakerRightOn();
 
 		changeBricksOfAfterCompletedLineToBullets(compLine);
 	}
@@ -858,6 +862,7 @@ public class Background : MonoBehaviour {
 
 		foreach (Bezier bz in m_removalBeziers)
 		{
+			m_feverBar.beakerLeftOn();
 			bz.Destroy();
 			m_beziers.Remove(bz);
 		}
