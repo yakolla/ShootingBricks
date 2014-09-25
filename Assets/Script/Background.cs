@@ -593,9 +593,9 @@ public class Background : MonoBehaviour {
 					audio.PlayOneShot(hittingBrickSound);
 				}
 
-				bullet.m_byUserInput = false;
 				if (removeBullet == true)
 				{
+					bullet.m_byUserInput = false;
 					m_bullets.RemoveAt(b);
 				}
 
